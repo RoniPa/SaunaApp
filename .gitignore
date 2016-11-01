@@ -1,5 +1,6 @@
 # Contains API keys etc.
 config.xml
+google-services.json
 
 # Built application files
 *.apk
