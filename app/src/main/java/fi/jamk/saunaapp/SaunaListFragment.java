@@ -71,7 +71,6 @@ public class SaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(MainActivity.MessageViewHolder viewHolder,
                                               FriendlyMessage friendlyMessage, int position) {
-                Log.d("VITTU", "Populate view holder");
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.messageTextView.setText(friendlyMessage.getText());
                 viewHolder.messengerTextView.setText(friendlyMessage.getName());

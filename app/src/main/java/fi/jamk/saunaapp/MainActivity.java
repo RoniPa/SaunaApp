@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,8 +30,11 @@ import com.google.android.gms.auth.api.Auth;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import fi.jamk.saunaapp.models.FriendlyMessage;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private GoogleApiClient mGoogleApiClient;
+    private DatabaseReference mFirebaseDatabaseReference;
 
     private String mUsername;
     private String mPhotoUrl;
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private EditText mMessageEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
 
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -99,13 +107,19 @@ public class MainActivity extends AppCompatActivity implements
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        mMessageEditText = (EditText) findViewById(R.id.messageEditText);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                FriendlyMessage friendlyMessage = new
+                        FriendlyMessage(mMessageEditText.getText().toString(),
+                        mUsername,
+                        mPhotoUrl);
+                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+                        .push().setValue(friendlyMessage);
+                mMessageEditText.setText("");
             }
         });
     }
