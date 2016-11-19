@@ -76,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements
     private String mUsername;
     private String mPhotoUrl;
 
+    // Tab page fragments
+    SaunaMapFragment mapFragment;
+    SaunaListFragment listFragment;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -90,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    private EditText mMessageEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,11 +116,11 @@ public class MainActivity extends AppCompatActivity implements
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addConnectionCallbacks(this) // Attach listener to fetch last known location
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .addApi(AppInvite.API)
                 .addApi(LocationServices.API)
                 .build();
-        mGoogleApiClient.connect();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
@@ -155,22 +158,6 @@ public class MainActivity extends AppCompatActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        mMessageEditText = (EditText) findViewById(R.id.messageEditText);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Sauna sauna = new
-                        Sauna(mMessageEditText.getText().toString(),
-                        mUsername,
-                        mPhotoUrl);
-                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                        .push().setValue(sauna);
-                mMessageEditText.setText("");
-            }
-        });
     }
 
     @Override
@@ -185,7 +172,8 @@ public class MainActivity extends AppCompatActivity implements
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
+        int itemId = item.getItemId();
+        switch (itemId) {
             case R.id.crash_menu:
                 FirebaseCrash.logcat(Log.ERROR, TAG, "Crash caused");
                 causeCrash();
@@ -207,23 +195,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
     private void causeCrash() {
         try {
             throw new NullPointerException("Fake null pointer exception");
         } catch (Exception ex) {
-            FirebaseCrash.log(ex.toString());
+            FirebaseCrash.logcat(Log.ERROR, TAG, ex.toString());
             throw ex;
         }
     }
@@ -303,9 +279,6 @@ public class MainActivity extends AppCompatActivity implements
     private void applyRetrievedLengthLimit() {
         Long friendly_msg_length =
                 mFirebaseRemoteConfig.getLong("friendly_msg_length");
-        mMessageEditText.setFilters(
-                new InputFilter[]{
-                        new InputFilter.LengthFilter(friendly_msg_length.intValue())});
     }
 
     private void sendInvitation() {
@@ -382,9 +355,15 @@ public class MainActivity extends AppCompatActivity implements
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return SaunaMapFragment.newInstance(position + 1, mLastLocation);
+                    if (mapFragment == null) {
+                        mapFragment = SaunaMapFragment.newInstance(position + 1);
+                    }
+                    return mapFragment;
                 case 1:
-                    return SaunaListFragment.newInstance(position + 1);
+                    if (listFragment == null) {
+                        listFragment = SaunaListFragment.newInstance(position + 1);
+                    }
+                    return listFragment;
                 default:
                     throw new IllegalArgumentException("Page at position "+position+" not found.");
             }
@@ -409,6 +388,41 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * Check locations permissions and set location if
+     * permissions are granted.
+     *
+     * @return False if no permissions, true if location set
+     */
+    private boolean checkPermissionsAndSetLocation() {
+        if (
+            ActivityCompat.checkSelfPermission(
+                    this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(
+                    this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "No location permissions granted.");
+            return false;
+        }
+
+        if (mapFragment == null) {
+            mapFragment = SaunaMapFragment.newInstance(2);
+        }
+
+        mLastLocation = LocationServices
+                .FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+
+        mapFragment.setMapLocation(mLastLocation);
+        mapFragment.setMyLocationEnabled(true);
+
+        Log.d(TAG, "Last known location: "+mLastLocation.getLatitude()+", "+mLastLocation.getLongitude());
+
+        return true;
+    }
+
+    /**
      * A view holder extending {@link RecyclerView.ViewHolder}
      * for Sauna list elements.
      */
@@ -423,33 +437,5 @@ public class MainActivity extends AppCompatActivity implements
             messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
             messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
         }
-    }
-
-    /**
-     * Check locations permissions and set location if
-     * permissions are granted.
-     *
-     * @return False if no permissions, true if location set
-     */
-    private boolean checkPermissionsAndSetLocation() {
-        if (
-            ActivityCompat.checkSelfPermission(
-                this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-                this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(TAG, "No location permissions granted.");
-            return false;
-        }
-
-        mLastLocation = LocationServices
-                .FusedLocationApi
-                .getLastLocation(mGoogleApiClient);
-
-        Log.d(TAG, "Last known location: "+mLastLocation.getLatitude()+", "+mLastLocation.getLongitude());
-
-        return true;
     }
 }

@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -33,13 +35,12 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-    private static final String ARG_MAP_LOCATION = "map_location";
+    private static final int MAP_ZOOM = 10;
 
     private OnFragmentInteractionListener mListener;
     private AdView mAdView;
     private GoogleMap map;
     private MapView saunaMapView;
-    private Location mapLocation;
 
     public SaunaMapFragment() {
         super();
@@ -50,20 +51,13 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
      * this fragment using the provided parameters.
      *
      * @param sectionNumber Section number
-     * @param mapLocation   Location to center the map.
-     *                      In MainActivity this is the last known
-     *                      position of the user.
      *
      * @return A new instance of fragment SaunaMapFragment.
      */
-    public static SaunaMapFragment newInstance(int sectionNumber, Location mapLocation) {
+    public static SaunaMapFragment newInstance(int sectionNumber) {
         SaunaMapFragment fragment = new SaunaMapFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-
-        if (mapLocation  != null) {
-            args.putParcelable(ARG_MAP_LOCATION, mapLocation);
-        }
 
         fragment.setArguments(args);
         return fragment;
@@ -141,8 +135,32 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         saunaMapView.onResume();
+    }
+
+    /**
+     * Set map to given location
+     *
+     * @param location
+     */
+    public void setMapLocation(Location location) {
+        LatLng userPos = new LatLng(
+                location.getLatitude(),
+                location.getLongitude());
+
+        map.moveCamera(CameraUpdateFactory.newLatLng(userPos));
+        map.addMarker(new MarkerOptions().position(userPos).title("Marker"));
+    }
+
+    /**
+     * Enable/disable centering map by device location.
+     *
+     * @param value
+     * @throws SecurityException
+     */
+    public void setMyLocationEnabled(boolean value)
+            throws SecurityException {
+        map.setMyLocationEnabled(value);
     }
 
     /**
