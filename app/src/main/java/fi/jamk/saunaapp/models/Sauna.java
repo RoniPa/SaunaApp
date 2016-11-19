@@ -15,16 +15,16 @@
  */
 package fi.jamk.saunaapp.models;
 
-public class FriendlyMessage {
+public class Sauna {
 
     private String id;
     private String text;
     private String name;
     private String photoUrl;
 
-    public FriendlyMessage() {}
+    public Sauna() {}
 
-    public FriendlyMessage(String text, String name, String photoUrl) {
+    public Sauna(String text, String name, String photoUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;

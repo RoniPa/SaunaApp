@@ -5,12 +5,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -19,8 +17,12 @@ import com.google.android.gms.ads.AdView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import fi.jamk.saunaapp.models.FriendlyMessage;
+import fi.jamk.saunaapp.models.Sauna;
 
+/**
+ * A {@link Fragment} subclass that displays
+ * a list of nearby Saunas.
+ */
 public class SaunaListFragment extends Fragment {
     /**
      * The fragment argument representing the section number for this
@@ -29,7 +31,7 @@ public class SaunaListFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<FriendlyMessage, MainActivity.MessageViewHolder>
+    private FirebaseRecyclerAdapter<Sauna, MainActivity.SaunaViewHolder>
             mFirebaseAdapter;
     private AdView mAdView;
     private ProgressBar mProgressBar;
@@ -68,27 +70,27 @@ public class SaunaListFragment extends Fragment {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage,
-                MainActivity.MessageViewHolder>(
-                FriendlyMessage.class,
-                R.layout.message_item,
-                MainActivity.MessageViewHolder.class,
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna,
+                MainActivity.SaunaViewHolder>(
+                Sauna.class,
+                R.layout.sauna_item,
+                MainActivity.SaunaViewHolder.class,
                 mFirebaseDatabaseReference.child(MainActivity.MESSAGES_CHILD)) {
 
             @Override
-            protected void populateViewHolder(MainActivity.MessageViewHolder viewHolder,
-                                              FriendlyMessage friendlyMessage, int position) {
+            protected void populateViewHolder(MainActivity.SaunaViewHolder viewHolder,
+                                              Sauna sauna, int position) {
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                viewHolder.messageTextView.setText(friendlyMessage.getText());
-                viewHolder.messengerTextView.setText(friendlyMessage.getName());
-                if (friendlyMessage.getPhotoUrl() == null) {
+                viewHolder.messageTextView.setText(sauna.getText());
+                viewHolder.messengerTextView.setText(sauna.getName());
+                if (sauna.getPhotoUrl() == null) {
                     viewHolder.messengerImageView
                             .setImageDrawable(ContextCompat
                                     .getDrawable(getContext(),
                                             R.drawable.ic_account_circle_black_36dp));
                 } else {
                     Glide.with(SaunaListFragment.this)
-                            .load(friendlyMessage.getPhotoUrl())
+                            .load(sauna.getPhotoUrl())
                             .into(viewHolder.messengerImageView);
                 }
             }

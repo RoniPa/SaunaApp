@@ -1,9 +1,15 @@
 package fi.jamk.saunaapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,23 +21,20 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.appinvite.AppInvite;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
 
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -47,19 +50,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import fi.jamk.saunaapp.models.FriendlyMessage;
+import fi.jamk.saunaapp.models.Sauna;
 
 public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        SaunaMapFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
     public static final String MESSAGES_CHILD = "messages";
-
     private static final int REQUEST_INVITE = 1;
+    private static final int REQUEST_LOCATION = 2;
+
+    GoogleApiClient mGoogleApiClient;
+
+    private Location mLastLocation;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private GoogleApiClient mGoogleApiClient;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -106,7 +115,9 @@ public class MainActivity extends AppCompatActivity implements
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .addApi(AppInvite.API)
+                .addApi(LocationServices.API)
                 .build();
+        //mGoogleApiClient.connect();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
@@ -151,12 +162,12 @@ public class MainActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FriendlyMessage friendlyMessage = new
-                        FriendlyMessage(mMessageEditText.getText().toString(),
+                Sauna sauna = new
+                        Sauna(mMessageEditText.getText().toString(),
                         mUsername,
                         mPhotoUrl);
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                        .push().setValue(friendlyMessage);
+                        .push().setValue(sauna);
                 mMessageEditText.setText("");
             }
         });
@@ -196,11 +207,23 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
     private void causeCrash() {
         try {
-            throw new NullPointerException("Fake null pointer exception ;)");
+            throw new NullPointerException("Fake null pointer exception");
         } catch (Exception ex) {
-            FirebaseCrash.report(ex);
+            FirebaseCrash.log(ex.toString());
             throw ex;
         }
     }
@@ -283,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements
         mMessageEditText.setFilters(
                 new InputFilter[]{
                         new InputFilter.LengthFilter(friendly_msg_length.intValue())});
-        Log.d(TAG, "FML is: " + friendly_msg_length);
     }
 
     private void sendInvitation() {
@@ -295,37 +317,47 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * A placeholder fragment containing a simple view.
+     * Listener for {@link SaunaMapFragment} interactions
+     * @param uri parameter
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Log.d(TAG, "SaunaMapFragment interaction with parameter " + uri.toString());
+    }
 
-        public PlaceholderFragment() {}
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, "GoogleApi connected");
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
+        if (!checkPermissionsAndSetLocation()) {
+            ActivityCompat.requestPermissions(
+                this,
+                new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                REQUEST_LOCATION);
         }
+    }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
+    /**
+     * Callback for location permission request, in case
+     * permissions have not been granted.
+     *
+     * @param requestCode
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            // Close activity if permissions were not granted on runtime.
+            if (!checkPermissionsAndSetLocation()) {
+                finish();
+            }
         }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "GoogleApi connection suspended: "+i);
     }
 
     /**
@@ -338,13 +370,23 @@ public class MainActivity extends AppCompatActivity implements
             super(fm);
         }
 
+        /**
+         * Returns page fragment of given position
+         * or throws {@link IllegalArgumentException} if not found
+         *
+         * @param position Page position
+         *
+         * @return {@link Fragment} | null
+         */
         @Override
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
+                    return SaunaMapFragment.newInstance(position + 1, mLastLocation);
+                case 1:
                     return SaunaListFragment.newInstance(position + 1);
                 default:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    throw new IllegalArgumentException("Page at position "+position+" not found.");
             }
         }
 
@@ -357,24 +399,57 @@ public class MainActivity extends AppCompatActivity implements
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "LIST";
-                case 1:
                     return "MAP";
+                case 1:
+                    return "LIST";
+                default:
+                    return null;
             }
-            return null;
         }
     }
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * A view holder extending {@link RecyclerView.ViewHolder}
+     * for Sauna list elements.
+     */
+    public static class SaunaViewHolder extends RecyclerView.ViewHolder {
         public TextView messageTextView;
         public TextView messengerTextView;
         public CircleImageView messengerImageView;
 
-        public MessageViewHolder(View v) {
+        public SaunaViewHolder(View v) {
             super(v);
             messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
             messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
             messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
         }
+    }
+
+    /**
+     * Check locations permissions and set location if
+     * permissions are granted.
+     *
+     * @return False if no permissions, true if location set
+     */
+    private boolean checkPermissionsAndSetLocation() {
+        if (
+            ActivityCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "No location permissions granted.");
+            return false;
+        }
+
+        mLastLocation = LocationServices
+                .FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+
+        Log.d(TAG, "Last known location: "+mLastLocation.getLatitude()+", "+mLastLocation.getLongitude());
+
+        return true;
     }
 }
