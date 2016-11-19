@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(AppInvite.API)
                 .addApi(LocationServices.API)
                 .build();
-        //mGoogleApiClient.connect();
+        mGoogleApiClient.connect();
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();

@@ -60,7 +60,7 @@ public class SaunaListFragment extends Fragment {
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        // mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         mMessageRecyclerView = (RecyclerView) rootView.findViewById(R.id.messageRecyclerView);
 
         mLinearLayoutManager = new LinearLayoutManager(getContext());
@@ -80,7 +80,7 @@ public class SaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(MainActivity.SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
-                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+                // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.messageTextView.setText(sauna.getText());
                 viewHolder.messengerTextView.setText(sauna.getName());
                 if (sauna.getPhotoUrl() == null) {
