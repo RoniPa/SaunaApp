@@ -35,7 +35,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-    private static final int MAP_ZOOM = 10;
+    private static final float MAP_ZOOM = 12.0f;
 
     private OnFragmentInteractionListener mListener;
     private AdView mAdView;
@@ -148,7 +148,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
                 location.getLatitude(),
                 location.getLongitude());
 
-        map.moveCamera(CameraUpdateFactory.newLatLng(userPos));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(userPos, MAP_ZOOM));
         map.addMarker(new MarkerOptions().position(userPos).title("Marker"));
     }
 
