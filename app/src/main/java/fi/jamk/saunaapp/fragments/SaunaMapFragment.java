@@ -1,4 +1,4 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
 import android.location.Location;
@@ -11,13 +11,24 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+
+import fi.jamk.saunaapp.BaseActivity;
+import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.models.Sauna;
 
 /**
  * A {@link Fragment} subclass that displays
@@ -37,7 +48,13 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final float MAP_ZOOM = 12.0f;
 
+    // Map center position
+    private LatLng userPos;
+    private HashMap<String, Marker> markers;
+    private DatabaseReference mFirebaseDatabaseReference;
+
     private OnFragmentInteractionListener mListener;
+    private ChildEventListener mFirebaseListener;
     private AdView mAdView;
     private GoogleMap map;
     private MapView saunaMapView;
@@ -77,10 +94,18 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sauna_map, container, false);
 
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseListener = getFirebaseListener();
+        markers = new HashMap<>();
+
         //mapLocation = savedInstanceState.getParcelable(ARG_MAP_LOCATION);
         saunaMapView = (MapView) rootView.findViewById(R.id.saunaMap);
         saunaMapView.onCreate(savedInstanceState);
         saunaMapView.getMapAsync(this);
+
+        // Attach listener to add markers to map
+        mFirebaseDatabaseReference.child(BaseActivity.SAUNAS_CHILD)
+                .addChildEventListener(mFirebaseListener);
 
         mAdView = (AdView) rootView.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -114,21 +139,25 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
         super.onPause();
     }
 
-    /** Called when returning to the activity */
     @Override
     public void onResume() {
         super.onResume();
         if (mAdView != null) {
             mAdView.resume();
         }
+        saunaMapView.onResume();
     }
 
-    /** Called before the activity is destroyed */
     @Override
     public void onDestroy() {
         if (mAdView != null) {
             mAdView.destroy();
         }
+        if (mFirebaseListener != null) {
+            mFirebaseDatabaseReference.removeEventListener(mFirebaseListener);
+            mFirebaseListener = null;
+        }
+
         super.onDestroy();
     }
 
@@ -144,7 +173,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
      * @param location
      */
     public void setMapLocation(Location location) {
-        LatLng userPos = new LatLng(
+        userPos = new LatLng(
                 location.getLatitude(),
                 location.getLongitude());
 
@@ -175,5 +204,44 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
      */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
+    }
+
+    /**
+     * Listener adds map markers for Saunas in database
+     *
+     * @return
+     */
+    private ChildEventListener getFirebaseListener() {
+        return new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Sauna sauna = dataSnapshot.getValue(Sauna.class);
+                Marker marker = map.addMarker(new MarkerOptions().position(
+                        new LatLng(sauna.getLatitude(), sauna.getLongitude())
+                ).title(sauna.getName()));
+
+                markers.put(sauna.getId(), marker);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                markers.remove(dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 }

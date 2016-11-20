@@ -22,19 +22,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+public class LoginActivity extends BaseActivity implements
+        GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
 
-    // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
     private GoogleApiClient mGoogleApiClient;
+    private FirebaseAuth mFirebaseAuth;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.

@@ -1,5 +1,6 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.fragments;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -17,7 +18,15 @@ import com.google.android.gms.ads.AdView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
+
+import fi.jamk.saunaapp.BaseActivity;
+import fi.jamk.saunaapp.MainActivity;
+import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
 
 /**
  * A {@link Fragment} subclass that displays
@@ -31,7 +40,7 @@ public class SaunaListFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<Sauna, MainActivity.SaunaViewHolder>
+    private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
             mFirebaseAdapter;
     private AdView mAdView;
     private ProgressBar mProgressBar;
@@ -71,18 +80,25 @@ public class SaunaListFragment extends Fragment {
         mAdView.loadAd(adRequest);
 
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna,
-                MainActivity.SaunaViewHolder>(
+                SaunaViewHolder>(
                 Sauna.class,
                 R.layout.sauna_item,
-                MainActivity.SaunaViewHolder.class,
-                mFirebaseDatabaseReference.child(MainActivity.MESSAGES_CHILD)) {
+                SaunaViewHolder.class,
+                mFirebaseDatabaseReference.child(BaseActivity.SAUNAS_CHILD)) {
 
             @Override
-            protected void populateViewHolder(MainActivity.SaunaViewHolder viewHolder,
+            protected void populateViewHolder(SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
+
+                Location userPos = BaseActivity.getLastLocation();
+                double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
+
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                viewHolder.messageTextView.setText(sauna.getText());
-                viewHolder.messengerTextView.setText(sauna.getName());
+                viewHolder.descriptionTextView
+                        .setText(sauna.getDescription() +", "+
+                                String.format("%.1f", distanceInKilometers) +" km");
+
+                viewHolder.nameTextView.setText(sauna.getName());
                 if (sauna.getPhotoUrl() == null) {
                     viewHolder.messengerImageView
                             .setImageDrawable(ContextCompat
@@ -143,5 +159,18 @@ public class SaunaListFragment extends Fragment {
             mAdView.destroy();
         }
         super.onDestroy();
+    }
+
+    private double countSaunaDistanceInKilometers(Location a, Sauna b) {
+        // Calculate user distance from sauna
+        GeodeticCalculator geoCalc = new GeodeticCalculator();
+        Ellipsoid reference = Ellipsoid.WGS84;
+        GlobalPosition pointA = new GlobalPosition(a.getLatitude(), a.getLongitude(), 0.0); // Point A
+        GlobalPosition pointB = new GlobalPosition(b.getLatitude(), b.getLongitude(), 0.0); // Point B
+        double distance = geoCalc
+                .calculateGeodeticCurve(reference, pointB, pointA)
+                .getEllipsoidalDistance(); // Distance between Point A and Point B
+
+        return distance / 1000;
     }
 }

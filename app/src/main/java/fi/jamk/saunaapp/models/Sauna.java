@@ -21,13 +21,17 @@ public class Sauna {
     private String text;
     private String name;
     private String photoUrl;
+    private double latitude;
+    private double longitude;
 
     public Sauna() {}
 
-    public Sauna(String text, String name, String photoUrl) {
+    public Sauna(String text, String name, String photoUrl, double latitude, double longitude) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getId() {
@@ -37,10 +41,10 @@ public class Sauna {
         this.id = id;
     }
 
-    public String getText() {
+    public String getDescription() {
         return text;
     }
-    public void setText(String text) {
+    public void setDescription(String text) {
         this.text = text;
     }
 
@@ -55,4 +59,10 @@ public class Sauna {
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
     }
+
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
 }
