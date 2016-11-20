@@ -230,7 +230,11 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                markers.remove(dataSnapshot.getKey());
+                String key = dataSnapshot.getKey();
+                // Remove marker from map
+                markers.get(key).remove();
+                // Remove marker from HashMap
+                markers.remove(key);
             }
 
             @Override
