@@ -136,6 +136,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
         if (mAdView != null) {
             mAdView.pause();
         }
+        saunaMapView.onPause();
         super.onPause();
     }
 
@@ -157,7 +158,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
             mFirebaseDatabaseReference.removeEventListener(mFirebaseListener);
             mFirebaseListener = null;
         }
-
+        saunaMapView.onDestroy();
         super.onDestroy();
     }
 

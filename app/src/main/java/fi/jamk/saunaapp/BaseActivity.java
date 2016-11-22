@@ -19,6 +19,7 @@ import java.util.Map;
 public abstract class BaseActivity extends AppCompatActivity {
     public static final String MESSAGES_CHILD = "messages";
     public static final String SAUNAS_CHILD = "saunas";
+    public static final String DETAILS_SAUNA = "fi.jamk.saunaapp.DETAILS_SAUNA";
 
     protected static Location mLastLocation;
     protected FirebaseRemoteConfig mFirebaseRemoteConfig;

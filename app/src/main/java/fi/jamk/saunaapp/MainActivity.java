@@ -31,14 +31,10 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
+import fi.jamk.saunaapp.models.Sauna;
 
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
@@ -157,9 +153,16 @@ public class MainActivity extends BaseActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int itemId = item.getItemId();
         switch (itemId) {
-            case R.id.crash_menu:
-                FirebaseCrash.logcat(Log.ERROR, TAG, "Crash caused");
-                causeCrash();
+            case R.id.details_menu:
+                startDetailsActivity(
+                    new Sauna(
+                        "Testisauna vain",
+                        "T niinkuin testi",
+                        null,
+                        10.123,
+                        20.234
+                    ));
+
                 return true;
             case R.id.invite_menu:
                 sendInvitation();
@@ -175,15 +178,6 @@ public class MainActivity extends BaseActivity implements
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void causeCrash() {
-        try {
-            throw new NullPointerException("Fake null pointer exception");
-        } catch (Exception ex) {
-            FirebaseCrash.logcat(Log.ERROR, TAG, ex.toString());
-            throw ex;
         }
     }
 
@@ -285,6 +279,17 @@ public class MainActivity extends BaseActivity implements
     }
 
     /**
+     * Launch {@link SaunaDetailsActivity} for {@link Sauna}
+     * @param sauna {@link Sauna} to display
+     */
+    public void startDetailsActivity(Sauna sauna) {
+        Intent startIntent = new Intent(this, SaunaDetailsActivity.class);
+        startIntent.putExtra(DETAILS_SAUNA, sauna);
+        startActivity(startIntent);
+        finish();
+    }
+
+    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -307,9 +312,10 @@ public class MainActivity extends BaseActivity implements
             switch (position) {
                 case 0:
                     if (mapFragment == null) {
-                        mapFragment = SaunaMapFragment.newInstance(position + 1);
+                        //mapFragment = SaunaMapFragment.newInstance(position + 1);
                     }
-                    return mapFragment;
+                    //return mapFragment;
+                    return listFragment;
                 case 1:
                     if (listFragment == null) {
                         listFragment = SaunaListFragment.newInstance(position + 1);

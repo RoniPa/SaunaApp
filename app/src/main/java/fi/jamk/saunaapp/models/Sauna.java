@@ -15,10 +15,13 @@
  */
 package fi.jamk.saunaapp.models;
 
-public class Sauna {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Sauna implements Parcelable {
 
     private String id;
-    private String text;
+    private String description;
     private String name;
     private String photoUrl;
     private double latitude;
@@ -26,8 +29,8 @@ public class Sauna {
 
     public Sauna() {}
 
-    public Sauna(String text, String name, String photoUrl, double latitude, double longitude) {
-        this.text = text;
+    public Sauna(String description, String name, String photoUrl, double latitude, double longitude) {
+        this.description = description;
         this.name = name;
         this.photoUrl = photoUrl;
         this.latitude = latitude;
@@ -42,10 +45,10 @@ public class Sauna {
     }
 
     public String getDescription() {
-        return text;
+        return description;
     }
-    public void setDescription(String text) {
-        this.text = text;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getName() {
@@ -65,4 +68,43 @@ public class Sauna {
 
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    /**
+     * Parcelable implementation.
+     */
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(description);
+        dest.writeString(name);
+        dest.writeString(photoUrl);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+    }
+
+    public static final Parcelable.Creator<Sauna> CREATOR
+            = new Parcelable.Creator<Sauna>() {
+        public Sauna createFromParcel(Parcel in) {
+            return new Sauna(in);
+        }
+
+        public Sauna[] newArray(int size) {
+            return new Sauna[size];
+        }
+    };
+
+    private Sauna(Parcel in) {
+        this.id = in.readString();
+        this.description = in.readString();
+        this.name = in.readString();
+        this.photoUrl = in.readString();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
+    }
 }

@@ -16,8 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--suppress AndroidDomInspection (api key is built from google-services.json)-->
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_api_key"/>
+        <!-- suppress AndroidDomInspection (api key is built from google-services.json) -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_api_key" />
 
         <service
             android:name=".services.SaunaAppMessagingService"
@@ -26,7 +28,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service
             android:name=".services.SaunaAppInstanceIdService"
             android:exported="false">
@@ -45,11 +46,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
-
+            android:label="@string/title_activity_login" />
+        <activity
+            android:name=".SaunaDetailsActivity"
+            android:label="@string/title_activity_sauna_details"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

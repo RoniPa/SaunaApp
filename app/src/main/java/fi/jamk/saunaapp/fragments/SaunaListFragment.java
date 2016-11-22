@@ -89,7 +89,6 @@ public class SaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
-
                 Location userPos = BaseActivity.getLastLocation();
                 double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
 
