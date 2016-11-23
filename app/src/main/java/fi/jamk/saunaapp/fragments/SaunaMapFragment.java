@@ -27,20 +27,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 
 import fi.jamk.saunaapp.BaseActivity;
+import fi.jamk.saunaapp.MainActivity;
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
 
 /**
  * A {@link Fragment} subclass that displays
  * nearby Saunas on google map.
  *
- * Activities that contain this fragment must implement the
- * {@link SaunaMapFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  * Use the {@link SaunaMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
+public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -50,10 +49,12 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
 
     // Map center position
     private LatLng userPos;
+
     private HashMap<String, Marker> markers;
+    private HashMap<Marker, Sauna> reverseMarkers;
+
     private DatabaseReference mFirebaseDatabaseReference;
 
-    private OnFragmentInteractionListener mListener;
     private ChildEventListener mFirebaseListener;
     private AdView mAdView;
     private GoogleMap map;
@@ -97,6 +98,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseListener = getFirebaseListener();
         markers = new HashMap<>();
+        reverseMarkers = new HashMap<>();
 
         //mapLocation = savedInstanceState.getParcelable(ARG_MAP_LOCATION);
         saunaMapView = (MapView) rootView.findViewById(R.id.saunaMap);
@@ -117,18 +119,11 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -165,6 +160,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        googleMap.setOnMarkerClickListener(this);
         saunaMapView.onResume();
     }
 
@@ -179,7 +175,6 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
                 location.getLongitude());
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(userPos, MAP_ZOOM));
-        map.addMarker(new MarkerOptions().position(userPos).title("Marker"));
     }
 
     /**
@@ -191,20 +186,6 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
     public void setMyLocationEnabled(boolean value)
             throws SecurityException {
         map.setMyLocationEnabled(value);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 
     /**
@@ -222,6 +203,7 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
                 ).title(sauna.getName()));
 
                 markers.put(sauna.getId(), marker);
+                reverseMarkers.put(marker, sauna);
             }
 
             @Override
@@ -233,9 +215,9 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 String key = dataSnapshot.getKey();
                 // Remove marker from map
-                markers.get(key).remove();
-                // Remove marker from HashMap
-                markers.remove(key);
+                Marker m = markers.get(key);
+                reverseMarkers.remove(m);
+                m.remove();
             }
 
             @Override
@@ -248,5 +230,23 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         };
+    }
+
+    /**
+     * Find {@link Sauna} for marker and launch {@link SaunaDetailsActivity}
+     *
+     * @param marker {@link Marker} for Google Map
+     * @return boolean
+     */
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Sauna sauna = reverseMarkers.get(marker);
+
+        if (sauna != null) {
+            ((MainActivity) getActivity()).startDetailsActivity(sauna);
+            return true;
+        }
+
+        return false;
     }
 }

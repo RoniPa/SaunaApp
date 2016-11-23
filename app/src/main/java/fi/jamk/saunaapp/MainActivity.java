@@ -30,7 +30,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.crash.FirebaseCrash;
 
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
@@ -39,8 +38,7 @@ import fi.jamk.saunaapp.models.Sauna;
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
-        ActivityCompat.OnRequestPermissionsResultCallback,
-        SaunaMapFragment.OnFragmentInteractionListener {
+        ActivityCompat.OnRequestPermissionsResultCallback {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_INVITE = 1;
     private static final int REQUEST_LOCATION = 2;
@@ -234,15 +232,6 @@ public class MainActivity extends BaseActivity implements
         startActivityForResult(intent, REQUEST_INVITE);
     }
 
-    /**
-     * Listener for {@link SaunaMapFragment} interactions
-     * @param uri parameter
-     */
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-        Log.d(TAG, "SaunaMapFragment interaction with parameter " + uri.toString());
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "GoogleApi connected");
@@ -286,7 +275,6 @@ public class MainActivity extends BaseActivity implements
         Intent startIntent = new Intent(this, SaunaDetailsActivity.class);
         startIntent.putExtra(DETAILS_SAUNA, sauna);
         startActivity(startIntent);
-        finish();
     }
 
     /**
@@ -311,16 +299,15 @@ public class MainActivity extends BaseActivity implements
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if (mapFragment == null) {
-                        //mapFragment = SaunaMapFragment.newInstance(position + 1);
-                    }
-                    //return mapFragment;
-                    return listFragment;
-                case 1:
                     if (listFragment == null) {
                         listFragment = SaunaListFragment.newInstance(position + 1);
                     }
                     return listFragment;
+                case 1:
+                    if (mapFragment == null) {
+                        mapFragment = SaunaMapFragment.newInstance(position + 1);
+                    }
+                    return mapFragment;
                 default:
                     throw new IllegalArgumentException("Page at position "+position+" not found.");
             }
@@ -335,9 +322,9 @@ public class MainActivity extends BaseActivity implements
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "MAP";
-                case 1:
                     return "LIST";
+                case 1:
+                    return "MAP";
                 default:
                     return null;
             }

@@ -26,6 +26,7 @@ import fi.jamk.saunaapp.BaseActivity;
 import fi.jamk.saunaapp.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.util.RecyclerItemClickListener;
 import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
 
 /**
@@ -131,6 +132,17 @@ public class SaunaListFragment extends Fragment {
 
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
+        mMessageRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(getActivity(), mMessageRecyclerView,
+                        new RecyclerItemClickListener.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                ((MainActivity)getActivity())
+                                        .startDetailsActivity(mFirebaseAdapter.getItem(position));
+                            }
+                            @Override
+                            public void onLongItemClick(View view, int position) {}
+                        }));
         return rootView;
     }
 
