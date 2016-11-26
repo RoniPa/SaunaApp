@@ -161,6 +161,8 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         googleMap.setOnMarkerClickListener(this);
+        // Disable scroll gestures to be able to navigate tabs
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
         saunaMapView.onResume();
     }
 
