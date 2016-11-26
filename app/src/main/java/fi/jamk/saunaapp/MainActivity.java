@@ -2,7 +2,7 @@ package fi.jamk.saunaapp;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -24,6 +24,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
 
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,12 +40,14 @@ import fi.jamk.saunaapp.models.Sauna;
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        LocationListener {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_INVITE = 1;
     private static final int REQUEST_LOCATION = 2;
 
     private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -91,6 +95,7 @@ public class MainActivity extends BaseActivity implements
             }
         }
 
+        mLocationRequest = LocationRequest.create();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addConnectionCallbacks(this) // Attach listener to fetch last known location
@@ -151,16 +156,8 @@ public class MainActivity extends BaseActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int itemId = item.getItemId();
         switch (itemId) {
-            case R.id.details_menu:
-                startDetailsActivity(
-                    new Sauna(
-                        "Testisauna vain",
-                        "T niinkuin testi",
-                        null,
-                        10.123,
-                        20.234
-                    ));
-
+            case R.id.profile_menu:
+                startActivity(new Intent(this, UserProfileActivity.class));
                 return true;
             case R.id.invite_menu:
                 sendInvitation();
@@ -236,7 +233,7 @@ public class MainActivity extends BaseActivity implements
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "GoogleApi connected");
 
-        if (!checkPermissionsAndSetLocation()) {
+        if (!checkPermissionsAndStartLocationListener()) {
             ActivityCompat.requestPermissions(
                 this,
                 new String[]{
@@ -248,7 +245,7 @@ public class MainActivity extends BaseActivity implements
 
     /**
      * Callback for location permission request, in case
-     * permissions have not been granted.
+     * permissions had not been granted.
      *
      * @param requestCode
      */
@@ -256,7 +253,7 @@ public class MainActivity extends BaseActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_LOCATION) {
             // Close activity if permissions were not granted on runtime.
-            if (!checkPermissionsAndSetLocation()) {
+            if (!checkPermissionsAndStartLocationListener()) {
                 finish();
             }
         }
@@ -275,6 +272,18 @@ public class MainActivity extends BaseActivity implements
         Intent startIntent = new Intent(this, SaunaDetailsActivity.class);
         startIntent.putExtra(DETAILS_SAUNA, sauna);
         startActivity(startIntent);
+    }
+
+    /**
+     * Location listener. Sets the current location
+     * to Google Map.
+     *
+     * @param location
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        mapFragment.setMapLocation(mCurrentLocation);
     }
 
     /**
@@ -337,7 +346,7 @@ public class MainActivity extends BaseActivity implements
      *
      * @return False if no permissions, true if location set
      */
-    private boolean checkPermissionsAndSetLocation() {
+    private boolean checkPermissionsAndStartLocationListener() {
         if (
             ActivityCompat.checkSelfPermission(
                     this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -351,18 +360,14 @@ public class MainActivity extends BaseActivity implements
         }
 
         if (mapFragment == null) {
+            // Param: map fragment tab index
             mapFragment = SaunaMapFragment.newInstance(2);
+            mapFragment.setMyLocationEnabled(true);
         }
 
-        mLastLocation = LocationServices
-                .FusedLocationApi
-                .getLastLocation(mGoogleApiClient);
-
-        mapFragment.setMapLocation(mLastLocation);
-        mapFragment.setMyLocationEnabled(true);
-
-        Log.d(TAG, "Last known location: "+mLastLocation.getLatitude()+", "+mLastLocation.getLongitude());
-
+        // Request location updates.
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
         return true;
     }
 }

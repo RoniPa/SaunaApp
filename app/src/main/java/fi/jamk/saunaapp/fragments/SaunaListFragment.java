@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class SaunaListFragment extends Fragment {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String TAG = "SaunaListFragment";
 
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
@@ -90,7 +92,7 @@ public class SaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
-                Location userPos = BaseActivity.getLastLocation();
+                Location userPos = BaseActivity.getCurrentLocation();
                 double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
 
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -173,6 +175,11 @@ public class SaunaListFragment extends Fragment {
     }
 
     private double countSaunaDistanceInKilometers(Location a, Sauna b) {
+        if (a == null || b == null) {
+            Log.e(TAG, "Can not count sauna distance, one of the given parameters is null.");
+            return 0;
+        }
+
         // Calculate user distance from sauna
         GeodeticCalculator geoCalc = new GeodeticCalculator();
         Ellipsoid reference = Ellipsoid.WGS84;

@@ -1,7 +1,7 @@
 <resources>
     <!-- General strings -->
     <string name="app_name">SaunaApp</string>
-    <string name="action_details">Go to Details</string>
+    <string name="action_profile">My profile</string>
     <string name="action_settings">Fresh Settings</string>
     <string name="action_invite">Invite Friends</string>
     <string name="section_format">Hello World from section: %1$d</string>
@@ -25,4 +25,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Strings related to AddSaunaActivity -->
+    <string name="title_activity_add_sauna">Add a Sauna</string>
+
+    <!-- Strings related to UserProfileActivity -->
+    <string name="title_activity_user_profile">User profile</string>
 </resources>

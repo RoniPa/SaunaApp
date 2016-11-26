@@ -51,7 +51,26 @@
             android:label="@string/title_activity_login" />
         <activity
             android:name=".SaunaDetailsActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddSaunaActivity"
+            android:label="@string/title_activity_add_sauna"
+            android:parentActivityName=".MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.MainActivity" />
+        </activity>
+        <activity
+            android:name=".UserProfileActivity"
+            android:label="@string/title_activity_user_profile"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
