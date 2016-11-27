@@ -1,5 +1,6 @@
 package fi.jamk.saunaapp;
 
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,7 +20,16 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
-public class UserProfileActivity extends AppCompatActivity {
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import fi.jamk.saunaapp.fragments.ProfileDetailsFragment;
+import fi.jamk.saunaapp.fragments.ProfileSaunaListFragment;
+import fi.jamk.saunaapp.models.Sauna;
+
+public class UserProfileActivity extends AppCompatActivity implements
+        ProfileDetailsFragment.OnFragmentInteractionListener,
+        ProfileSaunaListFragment.OnListFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -31,6 +41,9 @@ public class UserProfileActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -40,6 +53,9 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -90,38 +106,21 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
+     * Details fragment interaction
+     * @param uri
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
-        public PlaceholderFragment() {
-        }
+    }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
+    /**
+     * Sauna list fragment interaction
+     * @param item
+     */
+    @Override
+    public void onListFragmentInteraction(Sauna item) {
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_user_profile2, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
     }
 
     /**
@@ -136,28 +135,26 @@ public class UserProfileActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0: return ProfileDetailsFragment.newInstance(mFirebaseUser.getUid());
+                case 1: return ProfileSaunaListFragment.newInstance(mFirebaseUser.getUid());
+                default: return null;
+            }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            // Show 2 total pages.
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case 0:
-                    return "PROFILE";
-                case 1:
-                    return "MY SAUNAS";
-                case 2:
-                    return "SECTION 3";
+                case 0: return "PROFILE";
+                case 1: return "MY SAUNAS";
+                default: return null;
             }
-            return null;
         }
     }
 }

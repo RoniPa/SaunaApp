@@ -107,4 +107,10 @@ public class Sauna implements Parcelable {
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
     }
+
+    public class OnListFragmentInteractionListener {
+        public void onListFragmentInteraction(Sauna sauna) {
+
+        }
+    }
 }

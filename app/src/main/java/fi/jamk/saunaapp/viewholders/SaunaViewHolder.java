@@ -22,4 +22,8 @@ public class SaunaViewHolder extends RecyclerView.ViewHolder {
         nameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
         messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
     }
+
+    public class OnListFragmentInteractionListener {
+
+    }
 }
