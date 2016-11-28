@@ -37,8 +37,5 @@
                 android:id="@+id/descriptionTextView"
                 android:layout_weight="0"/>
         </LinearLayout>
-
     </LinearLayout>
-
-
 </LinearLayout>

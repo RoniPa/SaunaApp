@@ -7,6 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import fi.jamk.saunaapp.R;
 
@@ -21,8 +25,7 @@ import fi.jamk.saunaapp.R;
 public class ProfileDetailsFragment extends Fragment {
     private static final String ARG_USER_ID = "user_id";
 
-    private String userId;
-
+    private FirebaseUser mUser;
     private OnFragmentInteractionListener mListener;
 
     public ProfileDetailsFragment() {}
@@ -31,10 +34,9 @@ public class ProfileDetailsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param userId Firebase User id
+     * @param userId Firebase User id (not used at the moment)
      * @return A new instance of fragment ProfileDetailsFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ProfileDetailsFragment newInstance(String userId) {
         ProfileDetailsFragment fragment = new ProfileDetailsFragment();
         Bundle args = new Bundle();
@@ -46,16 +48,20 @@ public class ProfileDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            userId = getArguments().getString(ARG_USER_ID);
-        }
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mUser = auth.getCurrentUser();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile_details, container, false);
+
+        TextView nameTextView = (TextView) view.findViewById(R.id.profile_name_text_view);
+        nameTextView.setText(mUser.getDisplayName());
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

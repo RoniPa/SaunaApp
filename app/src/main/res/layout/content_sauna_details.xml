@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="fi.jamk.saunaapp.SaunaDetailsActivity"
+    tools:context="fi.jamk.saunaapp.activities.SaunaDetailsActivity"
     tools:showIn="@layout/activity_sauna_details">
 
     <TextView

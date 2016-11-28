@@ -24,15 +24,17 @@ public class Sauna implements Parcelable {
     private String description;
     private String name;
     private String photoUrl;
+    private String owner;
     private double latitude;
     private double longitude;
 
     public Sauna() {}
 
-    public Sauna(String description, String name, String photoUrl, double latitude, double longitude) {
+    public Sauna(String description, String name, String photoUrl, String owner, double latitude, double longitude) {
         this.description = description;
         this.name = name;
         this.photoUrl = photoUrl;
+        this.owner = owner;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -63,6 +65,9 @@ public class Sauna implements Parcelable {
         this.photoUrl = photoUrl;
     }
 
+    public String getOwner() { return owner; }
+    public void setOwner(String owner) { this.owner = owner; }
+
     public double getLatitude() { return latitude; }
     public void setLatitude(double latitude) { this.latitude = latitude; }
 
@@ -84,6 +89,7 @@ public class Sauna implements Parcelable {
         dest.writeString(description);
         dest.writeString(name);
         dest.writeString(photoUrl);
+        dest.writeString(owner);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
     }
@@ -104,13 +110,8 @@ public class Sauna implements Parcelable {
         this.description = in.readString();
         this.name = in.readString();
         this.photoUrl = in.readString();
+        this.owner = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
-    }
-
-    public class OnListFragmentInteractionListener {
-        public void onListFragmentInteraction(Sauna sauna) {
-
-        }
     }
 }

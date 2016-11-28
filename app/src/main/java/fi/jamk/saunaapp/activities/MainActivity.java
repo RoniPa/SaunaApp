@@ -1,4 +1,4 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,6 +33,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
 import fi.jamk.saunaapp.models.Sauna;

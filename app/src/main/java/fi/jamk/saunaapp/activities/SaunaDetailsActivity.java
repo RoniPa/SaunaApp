@@ -1,19 +1,15 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
+import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
 
 public class SaunaDetailsActivity extends BaseActivity {

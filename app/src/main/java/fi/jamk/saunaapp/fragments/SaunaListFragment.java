@@ -23,8 +23,8 @@ import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
 
-import fi.jamk.saunaapp.BaseActivity;
-import fi.jamk.saunaapp.MainActivity;
+import fi.jamk.saunaapp.activities.BaseActivity;
+import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
@@ -47,7 +47,7 @@ public class SaunaListFragment extends Fragment {
             mFirebaseAdapter;
     private AdView mAdView;
     private ProgressBar mProgressBar;
-    private RecyclerView mMessageRecyclerView;
+    private RecyclerView mSaunaRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
     public SaunaListFragment() {
@@ -73,7 +73,7 @@ public class SaunaListFragment extends Fragment {
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         // mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-        mMessageRecyclerView = (RecyclerView) rootView.findViewById(R.id.messageRecyclerView);
+        mSaunaRecyclerView = (RecyclerView) rootView.findViewById(R.id.saunaRecyclerView);
 
         mLinearLayoutManager = new LinearLayoutManager(getContext());
         mLinearLayoutManager.setStackFromEnd(true);
@@ -127,15 +127,15 @@ public class SaunaListFragment extends Fragment {
                 if (lastVisiblePosition == -1 ||
                         (positionStart >= (friendlyMessageCount - 1) &&
                                 lastVisiblePosition == (positionStart - 1))) {
-                    mMessageRecyclerView.scrollToPosition(positionStart);
+                    mSaunaRecyclerView.scrollToPosition(positionStart);
                 }
             }
         });
 
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mMessageRecyclerView.setAdapter(mFirebaseAdapter);
-        mMessageRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(getActivity(), mMessageRecyclerView,
+        mSaunaRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mSaunaRecyclerView.setAdapter(mFirebaseAdapter);
+        mSaunaRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(getActivity(), mSaunaRecyclerView,
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {

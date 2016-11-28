@@ -2,7 +2,6 @@ package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -26,10 +25,10 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 
-import fi.jamk.saunaapp.BaseActivity;
-import fi.jamk.saunaapp.MainActivity;
+import fi.jamk.saunaapp.activities.BaseActivity;
+import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
-import fi.jamk.saunaapp.SaunaDetailsActivity;
+import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
 
 /**

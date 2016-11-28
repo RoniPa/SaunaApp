@@ -26,8 +26,9 @@
         completions."
     </string>
 
-    <!-- Strings related to AddSaunaActivity -->
+    <!-- Strings related to EditSaunaActivity -->
     <string name="title_activity_add_sauna">Add a Sauna</string>
+    <string name="title_activity_edit_sauna">Edit Sauna</string>
 
     <!-- Strings related to UserProfileActivity -->
     <string name="title_activity_user_profile">User profile</string>

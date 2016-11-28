@@ -1,4 +1,4 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.activities;
 
 import android.location.Location;
 import android.os.Bundle;

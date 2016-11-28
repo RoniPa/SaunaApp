@@ -1,10 +1,10 @@
-package fi.jamk.saunaapp;
+package fi.jamk.saunaapp.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -12,22 +12,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-
-import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.ProfileDetailsFragment;
 import fi.jamk.saunaapp.fragments.ProfileSaunaListFragment;
 import fi.jamk.saunaapp.models.Sauna;
 
-public class UserProfileActivity extends AppCompatActivity implements
+public class UserProfileActivity extends BaseActivity implements
         ProfileDetailsFragment.OnFragmentInteractionListener,
         ProfileSaunaListFragment.OnListFragmentInteractionListener {
 
@@ -75,8 +72,8 @@ public class UserProfileActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent startIntent = new Intent(view.getContext(), EditSaunaActivity.class);
+                startActivity(startIntent);
             }
         });
 
@@ -121,6 +118,12 @@ public class UserProfileActivity extends AppCompatActivity implements
     @Override
     public void onListFragmentInteraction(Sauna item) {
 
+    }
+
+    public void startSaunaEditActivity(Sauna sauna) {
+        Intent startIntent = new Intent(this, EditSaunaActivity.class);
+        startIntent.putExtra(DETAILS_SAUNA, sauna);
+        startActivity(startIntent);
     }
 
     /**
