@@ -159,9 +159,9 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        googleMap.setOnMarkerClickListener(this);
+        map.setOnMarkerClickListener(this);
         // Disable scroll gestures to be able to navigate tabs
-        googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        map.getUiSettings().setScrollGesturesEnabled(false);
         saunaMapView.onResume();
     }
 
@@ -171,6 +171,10 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
      * @param location
      */
     public void setMapLocation(Location location) {
+        if (map == null) {
+            return;
+        }
+
         userPos = new LatLng(
                 location.getLatitude(),
                 location.getLongitude());
@@ -186,7 +190,12 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
      */
     public void setMyLocationEnabled(boolean value)
             throws SecurityException {
+        if (map == null) {
+            return;
+        }
+
         map.setMyLocationEnabled(value);
+        saunaMapView.onResume();
     }
 
     /**
