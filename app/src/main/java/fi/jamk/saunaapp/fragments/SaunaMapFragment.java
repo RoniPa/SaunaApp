@@ -144,6 +144,18 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     }
 
     @Override
+    public void onStop() {
+        saunaMapView.onStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        saunaMapView.onStart();
+        super.onStart();
+    }
+
+    @Override
     public void onDestroy() {
         if (mAdView != null) {
             mAdView.destroy();
