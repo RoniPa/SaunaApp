@@ -37,6 +37,7 @@ import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.UserLocationService;
 
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
@@ -44,11 +45,9 @@ public class MainActivity extends BaseActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         LocationListener {
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_INVITE = 1;
-    private static final int REQUEST_LOCATION = 2;
 
     private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
+    private UserLocationService mUserLocationService;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -96,7 +95,6 @@ public class MainActivity extends BaseActivity implements
             }
         }
 
-        mLocationRequest = LocationRequest.create();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addConnectionCallbacks(this) // Attach listener to fetch last known location
@@ -104,6 +102,8 @@ public class MainActivity extends BaseActivity implements
                 .addApi(AppInvite.API)
                 .addApi(LocationServices.API)
                 .build();
+
+        mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
 
         fetchConfig()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -144,6 +144,12 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    protected void onDestroy() {
+        mUserLocationService.removeListener(this);
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -173,13 +179,9 @@ public class MainActivity extends BaseActivity implements
                 startActivity(new Intent(this, LoginActivity.class));
                 return true;
             default:
+                // The user's action was not recognized.
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 
     @Override
@@ -231,10 +233,20 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "GoogleApi connection suspended: "+i);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+    }
+
+    @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "GoogleApi connected");
 
-        if (!checkPermissionsAndStartLocationListener()) {
+        if (!mUserLocationService.requestLocationUpdates(this)) {
             ActivityCompat.requestPermissions(
                 this,
                 new String[]{
@@ -254,15 +266,10 @@ public class MainActivity extends BaseActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_LOCATION) {
             // Close activity if permissions were not granted on runtime.
-            if (!checkPermissionsAndStartLocationListener()) {
+            if (!mUserLocationService.requestLocationUpdates(this)) {
                 finish();
             }
         }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "GoogleApi connection suspended: "+i);
     }
 
     /**
@@ -283,6 +290,12 @@ public class MainActivity extends BaseActivity implements
      */
     @Override
     public void onLocationChanged(Location location) {
+        if (mapFragment == null) {
+            // Param: map fragment tab index
+            mapFragment = SaunaMapFragment.newInstance(2);
+            mapFragment.setMyLocationEnabled(true);
+        }
+
         mCurrentLocation = location;
         mapFragment.setMapLocation(mCurrentLocation);
     }
@@ -339,36 +352,5 @@ public class MainActivity extends BaseActivity implements
                     return null;
             }
         }
-    }
-
-    /**
-     * Check locations permissions and set location if
-     * permissions are granted.
-     *
-     * @return False if no permissions, true if location set
-     */
-    private boolean checkPermissionsAndStartLocationListener() {
-        if (
-            ActivityCompat.checkSelfPermission(
-                    this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-                    this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(TAG, "No location permissions granted.");
-            return false;
-        }
-
-        if (mapFragment == null) {
-            // Param: map fragment tab index
-            mapFragment = SaunaMapFragment.newInstance(2);
-            mapFragment.setMyLocationEnabled(true);
-        }
-
-        // Request location updates.
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-        return true;
     }
 }

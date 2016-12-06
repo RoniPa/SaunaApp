@@ -17,6 +17,9 @@ import java.util.Map;
  * Base class for all app Activities.
  */
 public abstract class BaseActivity extends AppCompatActivity {
+    public static final int REQUEST_INVITE = 1;
+    public static final int REQUEST_LOCATION = 2;
+
     public static final String MESSAGES_CHILD = "messages";
     public static final String SAUNAS_CHILD = "saunas";
     public static final String DETAILS_SAUNA = "fi.jamk.saunaapp.DETAILS_SAUNA";

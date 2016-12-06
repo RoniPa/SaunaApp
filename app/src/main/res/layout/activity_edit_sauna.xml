@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:hint="@string/name_hint"
         android:ems="10"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:id="@+id/nameEditText" />
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:hint="@string/description_hint"
         android:ems="10"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:id="@+id/descriptionEditText" />

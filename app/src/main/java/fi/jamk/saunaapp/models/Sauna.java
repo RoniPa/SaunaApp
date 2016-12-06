@@ -39,12 +39,8 @@ public class Sauna implements Parcelable {
         this.longitude = longitude;
     }
 
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getDescription() {
         return description;
@@ -99,7 +95,6 @@ public class Sauna implements Parcelable {
         public Sauna createFromParcel(Parcel in) {
             return new Sauna(in);
         }
-
         public Sauna[] newArray(int size) {
             return new Sauna[size];
         }

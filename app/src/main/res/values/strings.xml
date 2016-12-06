@@ -3,6 +3,7 @@
     <string name="app_name">SaunaApp</string>
     <string name="action_profile">My profile</string>
     <string name="action_settings">Fresh Settings</string>
+    <string name="action_save">Save</string>
     <string name="action_invite">Invite Friends</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_login">Sign in</string>
@@ -29,6 +30,8 @@
     <!-- Strings related to EditSaunaActivity -->
     <string name="title_activity_add_sauna">Add a Sauna</string>
     <string name="title_activity_edit_sauna">Edit Sauna</string>
+    <string name="name_hint">Write a name</string>
+    <string name="description_hint">Write a description</string>
 
     <!-- Strings related to UserProfileActivity -->
     <string name="title_activity_user_profile">User profile</string>
