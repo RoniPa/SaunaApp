@@ -25,7 +25,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
 
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,14 +39,10 @@ import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
 
 public class MainActivity extends BaseActivity implements
-        GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,
-        ActivityCompat.OnRequestPermissionsResultCallback,
-        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "MainActivity";
 
-    private GoogleApiClient mGoogleApiClient;
-    private UserLocationService mUserLocationService;
+    public GoogleApiClient mGoogleApiClient;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -56,6 +51,8 @@ public class MainActivity extends BaseActivity implements
 
     private String mUsername;
     private String mPhotoUrl;
+
+    private FragmentManager.OnBackStackChangedListener mBackStackListener;
 
     // Tab page fragments
     SaunaMapFragment mapFragment;
@@ -80,6 +77,8 @@ public class MainActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -96,14 +95,10 @@ public class MainActivity extends BaseActivity implements
         }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addConnectionCallbacks(this) // Attach listener to fetch last known location
+                .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .addApi(AppInvite.API)
-                .addApi(LocationServices.API)
                 .build();
-
-        mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
 
         fetchConfig()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -127,10 +122,9 @@ public class MainActivity extends BaseActivity implements
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        setContentView(R.layout.activity_main);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -144,8 +138,27 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
-        mUserLocationService.removeListener(this);
+        if (mBackStackListener != null) {
+            getSupportFragmentManager().removeOnBackStackChangedListener(mBackStackListener);
+            mBackStackListener = null;
+        }
+        mGoogleApiClient = null;
         super.onDestroy();
     }
 
@@ -233,43 +246,8 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "GoogleApi connection suspended: "+i);
-    }
-
-    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "GoogleApi connected");
-
-        if (!mUserLocationService.requestLocationUpdates(this)) {
-            ActivityCompat.requestPermissions(
-                this,
-                new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                REQUEST_LOCATION);
-        }
-    }
-
-    /**
-     * Callback for location permission request, in case
-     * permissions had not been granted.
-     *
-     * @param requestCode
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_LOCATION) {
-            // Close activity if permissions were not granted on runtime.
-            if (!mUserLocationService.requestLocationUpdates(this)) {
-                finish();
-            }
-        }
     }
 
     /**
@@ -280,24 +258,6 @@ public class MainActivity extends BaseActivity implements
         Intent startIntent = new Intent(this, SaunaDetailsActivity.class);
         startIntent.putExtra(DETAILS_SAUNA, sauna);
         startActivity(startIntent);
-    }
-
-    /**
-     * Location listener. Sets the current location
-     * to Google Map.
-     *
-     * @param location
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-        if (mapFragment == null) {
-            // Param: map fragment tab index
-            mapFragment = SaunaMapFragment.newInstance(2);
-            mapFragment.setMyLocationEnabled(true);
-        }
-
-        mCurrentLocation = location;
-        mapFragment.setMapLocation(mCurrentLocation);
     }
 
     /**

@@ -3,13 +3,23 @@ package fi.jamk.saunaapp.fragments;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -30,6 +40,7 @@ import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.UserLocationService;
 
 /**
  * A {@link Fragment} subclass that displays
@@ -38,13 +49,21 @@ import fi.jamk.saunaapp.models.Sauna;
  * Use the {@link SaunaMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class SaunaMapFragment extends Fragment implements
+        OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        LocationListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String TAG = "SaunaMapFragment";
     private static final float MAP_ZOOM = 12.0f;
+
+    private UserLocationService mUserLocationService;
+    private GoogleApiClient mGoogleApiClient;
 
     // Map center position
     private LatLng userPos;
@@ -53,8 +72,8 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     private HashMap<Marker, Sauna> reverseMarkers;
 
     private DatabaseReference mFirebaseDatabaseReference;
-
     private ChildEventListener mFirebaseListener;
+
     private AdView mAdView;
     private GoogleMap map;
     private MapView saunaMapView;
@@ -83,9 +102,13 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            // .. //
-        }
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addApi(LocationServices.API)
+                .build();
+
+        mGoogleApiClient.registerConnectionCallbacks(this);
+        mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
     }
 
     @Override
@@ -144,15 +167,18 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     }
 
     @Override
-    public void onStop() {
-        saunaMapView.onStop();
-        super.onStop();
+    public void onStart() {
+        mGoogleApiClient.connect();
+        saunaMapView.onStart();
+        super.onStart();
     }
 
     @Override
-    public void onStart() {
-        saunaMapView.onStart();
-        super.onStart();
+    public void onStop() {
+        mGoogleApiClient.disconnect();
+        mUserLocationService.removeListener(this);
+        saunaMapView.onStop();
+        super.onStop();
     }
 
     @Override
@@ -164,6 +190,10 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
             mFirebaseDatabaseReference.removeEventListener(mFirebaseListener);
             mFirebaseListener = null;
         }
+
+        mGoogleApiClient.unregisterConnectionCallbacks(this);
+        mGoogleApiClient = null;
+
         saunaMapView.onDestroy();
         super.onDestroy();
     }
@@ -172,8 +202,6 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMarkerClickListener(this);
-        // Disable scroll gestures to be able to navigate tabs
-        map.getUiSettings().setScrollGesturesEnabled(false);
         saunaMapView.onResume();
     }
 
@@ -208,6 +236,75 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
 
         map.setMyLocationEnabled(value);
         saunaMapView.onResume();
+    }
+
+    /**
+     * Find {@link Sauna} for marker and launch {@link SaunaDetailsActivity}
+     *
+     * @param marker {@link Marker} for Google Map
+     * @return boolean
+     */
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Sauna sauna = reverseMarkers.get(marker);
+
+        if (sauna != null) {
+            ((MainActivity) getActivity()).startDetailsActivity(sauna);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    BaseActivity.REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "GoogleApi connection suspended: "+i);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+    }
+
+    /**
+     * Location listener. Sets the current location
+     * to Google Map.
+     *
+     * @param location
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d("locationChanged", "Location changed from fragment");
+        setMyLocationEnabled(true);
+        setMapLocation(location);
+    }
+
+    /**
+     * Callback for location permission request, in case
+     * permissions had not been granted.
+     *
+     * @param requestCode
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == BaseActivity.REQUEST_LOCATION) {
+            // Close activity if permissions were not granted on runtime.
+            if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
+                getActivity().finish();
+            }
+        }
     }
 
     /**
@@ -252,23 +349,5 @@ public class SaunaMapFragment extends Fragment implements OnMapReadyCallback, Go
 
             }
         };
-    }
-
-    /**
-     * Find {@link Sauna} for marker and launch {@link SaunaDetailsActivity}
-     *
-     * @param marker {@link Marker} for Google Map
-     * @return boolean
-     */
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        Sauna sauna = reverseMarkers.get(marker);
-
-        if (sauna != null) {
-            ((MainActivity) getActivity()).startDetailsActivity(sauna);
-            return true;
-        }
-
-        return false;
     }
 }

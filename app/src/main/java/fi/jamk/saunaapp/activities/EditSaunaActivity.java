@@ -3,6 +3,7 @@ package fi.jamk.saunaapp.activities;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -199,6 +201,32 @@ public class EditSaunaActivity extends BaseActivity implements
     }
 
     /**
+     * Read values from inputs and set to model.
+     */
+    private void setModelValues() {
+        try {
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            sauna.setOwner(uid);
+        } catch (NullPointerException ex) {
+            Log.e(TAG, ex.getMessage());
+            return;
+        }
+
+        if (nameEditText != null) {
+            sauna.setName(nameEditText.getText().toString());
+        }
+        if (descriptionEditText != null) {
+            sauna.setDescription(
+                    descriptionEditText.getText().toString()
+            );
+        }
+        if (currentMapMarker != null) {
+            sauna.setLatitude(currentMapMarker.getPosition().latitude);
+            sauna.setLongitude(currentMapMarker.getPosition().longitude);
+        }
+    }
+
+    /**
      * Animate {@link GoogleMap} to given location.
      *
      * @param latLng      The location to move to
@@ -217,6 +245,8 @@ public class EditSaunaActivity extends BaseActivity implements
      * @return boolean
      */
     private boolean saveSauna() {
+        setModelValues();
+
         String id = sauna.getId();
         String name = sauna.getName();
 
@@ -224,6 +254,8 @@ public class EditSaunaActivity extends BaseActivity implements
                 sauna.getLatitude() <= 0.0d || sauna.getLongitude() <= 0.0d) {
             return false;
         }
+
+        Log.w(TAG, "Id: "+id);
 
         if (id == null || id.equals("")) {
             id = mFirebaseSaunaRef.push().getKey();

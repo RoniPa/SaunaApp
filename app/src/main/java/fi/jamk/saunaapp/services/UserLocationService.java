@@ -11,49 +11,61 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class UserLocationService implements LocationListener {
     private static final String TAG = "UserLocationService";
-    private static GoogleApiClient apiClient;
     private static LocationRequest mLocationRequest;
-    private static Set<LocationListener> listenerSet;
+    private static List<LocationListener> listenerList;
+    private static Location cachedLastLocation;
 
-    private UserLocationService() {}
+    private GoogleApiClient apiClient;
 
-    public static UserLocationService newInstance(GoogleApiClient apiClient) {
-        if (UserLocationService.apiClient == null) {
-            UserLocationService.apiClient = apiClient;
-        }
-        if (listenerSet == null) {
-            listenerSet = new HashSet<>();
-        }
-        return new UserLocationService();
+    private UserLocationService(GoogleApiClient apiClient) {
+        this.apiClient = apiClient;
     }
 
-    public boolean requestLocationUpdates(LocationListener l) {
-        boolean hasPermission = checkPermissionsAndStartLocationListener((Context) l);
+    public static UserLocationService newInstance(GoogleApiClient apiClient) {
+        if (listenerList == null) {
+            listenerList = new ArrayList<>();
+        }
+        return new UserLocationService(apiClient);
+    }
+
+    public boolean requestLocationUpdates(Context ctx, LocationListener l) {
+        boolean hasPermission = checkPermissionsAndStartLocationListener(ctx);
 
         if (hasPermission) {
-            listenerSet.add(l);
+            listenerList.add(l);
         } else {
-            Log.e(TAG, "Provided context " + l.toString() + " has not the needed user permissions.");
+            Log.e(TAG, "Provided context " + ctx.toString() + " has not the needed user permissions.");
+        }
+
+        if (cachedLastLocation != null) {
+            l.onLocationChanged(cachedLastLocation);
         }
 
         return hasPermission;
     }
 
     public boolean removeListener(LocationListener l) {
-        return listenerSet.remove(l);
+        if (listenerList.size() >= 1) {
+            mLocationRequest = null;
+            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+        }
+        return listenerList.remove(l);
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
-        for (LocationListener l : listenerSet) {
+        Log.d(TAG, location.toString());
+        for (LocationListener l : listenerList) {
             l.onLocationChanged(location);
         }
+        cachedLastLocation = location;
     }
 
     /**

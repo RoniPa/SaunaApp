@@ -28,6 +28,7 @@ import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
+import fi.jamk.saunaapp.util.StringFormat;
 import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
 
 /**
@@ -98,7 +99,8 @@ public class SaunaListFragment extends Fragment {
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.descriptionTextView
                         .setText(sauna.getDescription() +", "+
-                                String.format("%.1f", distanceInKilometers) +" km");
+                                StringFormat.roundedKilometersShort(
+                                        getContext(), distanceInKilometers));
 
                 viewHolder.nameTextView.setText(sauna.getName());
                 if (sauna.getPhotoUrl() == null) {

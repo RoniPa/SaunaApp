@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,12 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import fi.jamk.saunaapp.activities.BaseActivity;
 import fi.jamk.saunaapp.R;
@@ -33,11 +38,13 @@ import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
  * interface.
  */
 public class ProfileSaunaListFragment extends Fragment {
+    private static final String TAG = "ProfileSaunaList";
     private static final String ARG_USER_ID = "user_id";
     private String userId;
 
     private OnListFragmentInteractionListener mListener;
-    private DatabaseReference mFirebaseDatabaseReference;
+    private ValueEventListener valueListener;
+    private Query mFirebaseDatabaseReference;
 
     private RecyclerView mSaunaRecyclerView;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder> mRecyclerViewAdapter;
@@ -71,7 +78,12 @@ public class ProfileSaunaListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile_sauna_list, container, false);
 
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseDatabaseReference = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child(BaseActivity.SAUNAS_CHILD)
+                .orderByChild("owner")
+                .equalTo(userId);
 
         Context context = view.getContext();
         mSaunaRecyclerView = (RecyclerView) view.findViewById(R.id.profile_sauna_recycler_view);
@@ -81,10 +93,7 @@ public class ProfileSaunaListFragment extends Fragment {
                 Sauna.class,
                 R.layout.sauna_item,
                 SaunaViewHolder.class,
-                mFirebaseDatabaseReference
-                        .child(BaseActivity.SAUNAS_CHILD)
-                        .orderByChild("owner")
-                        .equalTo(userId)) {
+                mFirebaseDatabaseReference) {
 
             @Override
             protected void populateViewHolder(SaunaViewHolder viewHolder,
@@ -140,6 +149,7 @@ public class ProfileSaunaListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        valueListener = null;
     }
 
     /**

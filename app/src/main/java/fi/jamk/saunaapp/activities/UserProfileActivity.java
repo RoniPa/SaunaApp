@@ -107,18 +107,14 @@ public class UserProfileActivity extends BaseActivity implements
      * @param uri
      */
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
+    public void onFragmentInteraction(Uri uri) {}
 
     /**
      * Sauna list fragment interaction
-     * @param item
+     * @param sauna
      */
     @Override
-    public void onListFragmentInteraction(Sauna item) {
-
-    }
+    public void onListFragmentInteraction(Sauna sauna) {}
 
     public void startSaunaEditActivity(Sauna sauna) {
         Intent startIntent = new Intent(this, EditSaunaActivity.class);
