@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.UserLocationService;
 
 public class EditSaunaActivity extends BaseActivity implements
         OnMapReadyCallback, GoogleMap.OnMapClickListener {
@@ -123,7 +124,7 @@ public class EditSaunaActivity extends BaseActivity implements
             centerMap(latLng);
         } else {
             // Center map to user location
-            Location currentLocation = getCurrentLocation();
+            Location currentLocation = UserLocationService.getCachedLocation();
             LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             currentMapMarker = mMap.addMarker(
                     new MarkerOptions()

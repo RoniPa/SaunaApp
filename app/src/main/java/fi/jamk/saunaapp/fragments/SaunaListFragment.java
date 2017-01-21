@@ -27,6 +27,7 @@ import fi.jamk.saunaapp.activities.BaseActivity;
 import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.UserLocationService;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
 import fi.jamk.saunaapp.util.StringFormat;
 import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
@@ -47,12 +48,10 @@ public class SaunaListFragment extends Fragment {
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
             mFirebaseAdapter;
     private AdView mAdView;
-    private ProgressBar mProgressBar;
     private RecyclerView mSaunaRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
-    public SaunaListFragment() {
-    }
+    public SaunaListFragment() {}
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -93,7 +92,7 @@ public class SaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
-                Location userPos = BaseActivity.getCurrentLocation();
+                Location userPos = UserLocationService.getCachedLocation();
                 double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
 
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);

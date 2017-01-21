@@ -36,7 +36,6 @@
     <!-- Strings related to UserProfileActivity -->
     <string name="title_activity_user_profile">User profile</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Strings related to MapActivity -->
     <string name="title_activity_maps">Map</string>
 </resources>

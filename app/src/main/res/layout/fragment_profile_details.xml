@@ -12,6 +12,6 @@
         android:id="@+id/profile_name_text_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:text="I am a placeholder" />
 
 </FrameLayout>

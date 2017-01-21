@@ -54,7 +54,10 @@ public class UserLocationService implements LocationListener {
     public boolean removeListener(LocationListener l) {
         if (listenerList.size() >= 1) {
             mLocationRequest = null;
-            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+
+            if (apiClient.isConnected()) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+            }
         }
         return listenerList.remove(l);
     }
@@ -89,11 +92,14 @@ public class UserLocationService implements LocationListener {
 
         if (mLocationRequest == null) {
             mLocationRequest = LocationRequest.create();
+
             // Request location updates.
             LocationServices.FusedLocationApi.requestLocationUpdates(
-                    apiClient, mLocationRequest, this);
+                    this.apiClient, mLocationRequest, this);
         }
 
         return true;
     }
+
+    public static Location getCachedLocation() { return cachedLastLocation; }
 }

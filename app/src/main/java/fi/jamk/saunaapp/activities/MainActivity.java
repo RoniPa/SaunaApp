@@ -26,23 +26,33 @@ import com.google.android.gms.auth.api.Auth;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
 import fi.jamk.saunaapp.models.Sauna;
-import fi.jamk.saunaapp.services.UserLocationService;
+import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 
 public class MainActivity extends BaseActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        ChildConnectionNotifier {
     private static final String TAG = "MainActivity";
 
-    public GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
+
+    // Listen for GoogleApiClient changes in fragments
+    private List<GoogleApiClient.ConnectionCallbacks> childConnectionListeners;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -79,6 +89,8 @@ public class MainActivity extends BaseActivity implements
 
         setContentView(R.layout.activity_main);
 
+        childConnectionListeners = new ArrayList<>();
+
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -97,6 +109,7 @@ public class MainActivity extends BaseActivity implements
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .addApi(LocationServices.API)
                 .addApi(AppInvite.API)
                 .build();
 
@@ -246,6 +259,21 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        for (GoogleApiClient.ConnectionCallbacks listener : childConnectionListeners) {
+            listener.onConnected(bundle);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        for (GoogleApiClient.ConnectionCallbacks listener : childConnectionListeners) {
+            listener.onConnectionSuspended(i);
+        }
+        Log.d(TAG, "GoogleApi connection suspended: "+i);
+    }
+
+    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
@@ -312,5 +340,20 @@ public class MainActivity extends BaseActivity implements
                     return null;
             }
         }
+    }
+
+    @Override
+    public GoogleApiClient getApiClient() {
+        return mGoogleApiClient;
+    }
+
+    @Override
+    public void addConnectionListener(GoogleApiClient.ConnectionCallbacks l) {
+        childConnectionListeners.add(l);
+    }
+
+    @Override
+    public void removeConnectionListener(GoogleApiClient.ConnectionCallbacks l) {
+        childConnectionListeners.remove(l);
     }
 }

@@ -27,6 +27,7 @@ import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.activities.UserProfileActivity;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.UserLocationService;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
 import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
 
@@ -98,7 +99,7 @@ public class ProfileSaunaListFragment extends Fragment {
             @Override
             protected void populateViewHolder(SaunaViewHolder viewHolder,
                                               Sauna sauna, int position) {
-                Location userPos = BaseActivity.getCurrentLocation();
+                Location userPos = UserLocationService.getCachedLocation();
 
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 viewHolder.descriptionTextView

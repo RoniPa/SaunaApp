@@ -24,7 +24,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     public static final String SAUNAS_CHILD = "saunas";
     public static final String DETAILS_SAUNA = "fi.jamk.saunaapp.DETAILS_SAUNA";
 
-    protected static Location mCurrentLocation;
     protected FirebaseRemoteConfig mFirebaseRemoteConfig;
 
     @Override
@@ -67,9 +66,5 @@ public abstract class BaseActivity extends AppCompatActivity {
             cacheExpiration = 0;
         }
         return mFirebaseRemoteConfig.fetch(cacheExpiration);
-    }
-
-    public static Location getCurrentLocation() {
-        return mCurrentLocation;
     }
 }

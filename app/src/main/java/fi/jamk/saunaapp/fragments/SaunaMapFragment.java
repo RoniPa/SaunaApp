@@ -41,19 +41,20 @@ import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
+import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 
 /**
  * A {@link Fragment} subclass that displays
  * nearby Saunas on google map.
+ *
+ * Parent Activity must implement the {@link ChildConnectionNotifier} interface.
  *
  * Use the {@link SaunaMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class SaunaMapFragment extends Fragment implements
         OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
-        GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,
-        LocationListener {
+        GoogleApiClient.ConnectionCallbacks, LocationListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -63,7 +64,6 @@ public class SaunaMapFragment extends Fragment implements
     private static final float MAP_ZOOM = 12.0f;
 
     private UserLocationService mUserLocationService;
-    private GoogleApiClient mGoogleApiClient;
 
     // Map center position
     private LatLng userPos;
@@ -102,13 +102,6 @@ public class SaunaMapFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                .addApi(LocationServices.API)
-                .build();
-
-        mGoogleApiClient.registerConnectionCallbacks(this);
-        mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
     }
 
     @Override
@@ -116,6 +109,8 @@ public class SaunaMapFragment extends Fragment implements
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sauna_map, container, false);
+
+        ((ChildConnectionNotifier)getActivity()).addConnectionListener(this);
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseListener = getFirebaseListener();
@@ -135,6 +130,10 @@ public class SaunaMapFragment extends Fragment implements
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
+        mUserLocationService = UserLocationService.newInstance(
+                ((ChildConnectionNotifier)getActivity())
+                        .getApiClient());
+
         return rootView;
     }
 
@@ -150,6 +149,7 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onPause() {
+        Log.d(TAG, "onPause called");
         if (mAdView != null) {
             mAdView.pause();
         }
@@ -159,6 +159,7 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume called");
         super.onResume();
         if (mAdView != null) {
             mAdView.resume();
@@ -168,15 +169,14 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onStart() {
-        mGoogleApiClient.connect();
+        Log.d(TAG, "onStart called");
         saunaMapView.onStart();
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        mGoogleApiClient.disconnect();
-        mUserLocationService.removeListener(this);
+        Log.d(TAG, "onStop called");
         saunaMapView.onStop();
         super.onStop();
     }
@@ -191,9 +191,7 @@ public class SaunaMapFragment extends Fragment implements
             mFirebaseListener = null;
         }
 
-        mGoogleApiClient.unregisterConnectionCallbacks(this);
-        mGoogleApiClient = null;
-
+        ((ChildConnectionNotifier)getActivity()).removeConnectionListener(this);
         saunaMapView.onDestroy();
         super.onDestroy();
     }
@@ -203,6 +201,19 @@ public class SaunaMapFragment extends Fragment implements
         map = googleMap;
         map.setOnMarkerClickListener(this);
         saunaMapView.onResume();
+    }
+
+    /**
+     * Location listener. Sets the current location
+     * to Google Map.
+     *
+     * @param location
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d("locationChanged", "Location changed from fragment");
+        setMyLocationEnabled(true);
+        setMapLocation(location);
     }
 
     /**
@@ -256,41 +267,6 @@ public class SaunaMapFragment extends Fragment implements
         return false;
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    new String[]{
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    BaseActivity.REQUEST_LOCATION);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "GoogleApi connection suspended: "+i);
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
-    }
-
-    /**
-     * Location listener. Sets the current location
-     * to Google Map.
-     *
-     * @param location
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.d("locationChanged", "Location changed from fragment");
-        setMyLocationEnabled(true);
-        setMapLocation(location);
-    }
-
     /**
      * Callback for location permission request, in case
      * permissions had not been granted.
@@ -305,6 +281,23 @@ public class SaunaMapFragment extends Fragment implements
                 getActivity().finish();
             }
         }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    BaseActivity.REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mUserLocationService.removeListener(this);
     }
 
     /**
