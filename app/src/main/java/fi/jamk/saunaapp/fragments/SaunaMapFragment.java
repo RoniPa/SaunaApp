@@ -1,25 +1,21 @@
 package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.appinvite.AppInvite;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -36,7 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 
 import fi.jamk.saunaapp.activities.BaseActivity;
-import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
@@ -64,9 +59,6 @@ public class SaunaMapFragment extends Fragment implements
     private static final float MAP_ZOOM = 12.0f;
 
     private UserLocationService mUserLocationService;
-
-    // Map center position
-    private LatLng userPos;
 
     private HashMap<String, Marker> markers;
     private HashMap<Marker, Sauna> reverseMarkers;
@@ -149,7 +141,6 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause called");
         if (mAdView != null) {
             mAdView.pause();
         }
@@ -159,7 +150,6 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume called");
         super.onResume();
         if (mAdView != null) {
             mAdView.resume();
@@ -169,14 +159,12 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onStart() {
-        Log.d(TAG, "onStart called");
         saunaMapView.onStart();
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "onStop called");
         saunaMapView.onStop();
         super.onStop();
     }
@@ -211,7 +199,6 @@ public class SaunaMapFragment extends Fragment implements
      */
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("locationChanged", "Location changed from fragment");
         setMyLocationEnabled(true);
         setMapLocation(location);
     }
@@ -226,7 +213,7 @@ public class SaunaMapFragment extends Fragment implements
             return;
         }
 
-        userPos = new LatLng(
+        LatLng userPos = new LatLng(
                 location.getLatitude(),
                 location.getLongitude());
 
@@ -246,7 +233,6 @@ public class SaunaMapFragment extends Fragment implements
         }
 
         map.setMyLocationEnabled(value);
-        saunaMapView.onResume();
     }
 
     /**
@@ -260,7 +246,7 @@ public class SaunaMapFragment extends Fragment implements
         Sauna sauna = reverseMarkers.get(marker);
 
         if (sauna != null) {
-            ((MainActivity) getActivity()).startDetailsActivity(sauna);
+            startDetailsActivity(sauna);
             return true;
         }
 
@@ -298,6 +284,16 @@ public class SaunaMapFragment extends Fragment implements
     @Override
     public void onConnectionSuspended(int i) {
         mUserLocationService.removeListener(this);
+    }
+
+    /**
+     * Launch {@link SaunaDetailsActivity} for {@link Sauna}
+     * @param sauna {@link Sauna} to display
+     */
+    private void startDetailsActivity(Sauna sauna) {
+        Intent startIntent = new Intent(getActivity(), SaunaDetailsActivity.class);
+        startIntent.putExtra(BaseActivity.DETAILS_SAUNA, sauna);
+        startActivity(startIntent);
     }
 
     /**

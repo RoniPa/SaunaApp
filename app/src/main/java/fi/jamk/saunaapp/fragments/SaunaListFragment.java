@@ -1,7 +1,10 @@
 package fi.jamk.saunaapp.fragments;
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,12 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -24,10 +28,11 @@ import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
 
 import fi.jamk.saunaapp.activities.BaseActivity;
-import fi.jamk.saunaapp.activities.MainActivity;
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
+import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
 import fi.jamk.saunaapp.util.StringFormat;
 import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
@@ -35,14 +40,21 @@ import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
 /**
  * A {@link Fragment} subclass that displays
  * a list of nearby Saunas.
+ *
+ * todo: Implement DataBinding to list
+ *
+ * Parent Activity must implement the {@link ChildConnectionNotifier} interface.
  */
-public class SaunaListFragment extends Fragment {
+public class SaunaListFragment extends Fragment implements
+        GoogleApiClient.ConnectionCallbacks, LocationListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String TAG = "SaunaListFragment";
+
+    private UserLocationService mUserLocationService;
 
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
@@ -70,6 +82,8 @@ public class SaunaListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_list, container, false);
 
+        ((ChildConnectionNotifier)getActivity()).addConnectionListener(this);
+
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         // mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
@@ -82,16 +96,64 @@ public class SaunaListFragment extends Fragment {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna,
-                SaunaViewHolder>(
+        mUserLocationService = UserLocationService.newInstance(
+                ((ChildConnectionNotifier)getActivity()).getApiClient());
+
+
+        return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
+        super.onPause();
+    }
+
+    /** Called when returning to the activity */
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+    }
+
+    /** Called before the activity is destroyed */
+    @Override
+    public void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+        mUserLocationService.removeListener(this);
+        ((ChildConnectionNotifier)getActivity()).removeConnectionListener(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    BaseActivity.REQUEST_LOCATION);
+        }
+
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>(
                 Sauna.class,
                 R.layout.sauna_item,
                 SaunaViewHolder.class,
                 mFirebaseDatabaseReference.child(BaseActivity.SAUNAS_CHILD)) {
 
             @Override
-            protected void populateViewHolder(SaunaViewHolder viewHolder,
-                                              Sauna sauna, int position) {
+            protected void populateViewHolder(
+                    SaunaViewHolder viewHolder,
+                    Sauna sauna,
+                    int position) {
+
                 Location userPos = UserLocationService.getCachedLocation();
                 double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
 
@@ -140,39 +202,27 @@ public class SaunaListFragment extends Fragment {
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-                                ((MainActivity)getActivity())
-                                        .startDetailsActivity(mFirebaseAdapter.getItem(position));
+                                startDetailsActivity(mFirebaseAdapter.getItem(position));
                             }
                             @Override
                             public void onLongItemClick(View view, int position) {}
                         }));
-        return rootView;
     }
 
     @Override
-    public void onPause() {
-        if (mAdView != null) {
-            mAdView.pause();
-        }
-        super.onPause();
+    public void onConnectionSuspended(int i) {
+        mUserLocationService.removeListener(this);
     }
 
-    /** Called when returning to the activity */
+    /**
+     * Location listener. Sets the current location
+     * to Google Map.
+     *
+     * @param location
+     */
     @Override
-    public void onResume() {
-        super.onResume();
-        if (mAdView != null) {
-            mAdView.resume();
-        }
-    }
+    public void onLocationChanged(Location location) {
 
-    /** Called before the activity is destroyed */
-    @Override
-    public void onDestroy() {
-        if (mAdView != null) {
-            mAdView.destroy();
-        }
-        super.onDestroy();
     }
 
     private double countSaunaDistanceInKilometers(Location a, Sauna b) {
@@ -191,5 +241,15 @@ public class SaunaListFragment extends Fragment {
                 .getEllipsoidalDistance(); // Distance between Point A and Point B
 
         return distance / 1000;
+    }
+
+    /**
+     * Launch {@link SaunaDetailsActivity} for {@link Sauna}
+     * @param sauna {@link Sauna} to display
+     */
+    private void startDetailsActivity(Sauna sauna) {
+        Intent startIntent = new Intent(getActivity(), SaunaDetailsActivity.class);
+        startIntent.putExtra(BaseActivity.DETAILS_SAUNA, sauna);
+        startActivity(startIntent);
     }
 }

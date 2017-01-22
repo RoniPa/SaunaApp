@@ -108,6 +108,7 @@ public class MainActivity extends BaseActivity implements
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
+                .addConnectionCallbacks(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .addApi(LocationServices.API)
                 .addApi(AppInvite.API)
@@ -260,6 +261,7 @@ public class MainActivity extends BaseActivity implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, childConnectionListeners.size() +" registered connection listeners");
         for (GoogleApiClient.ConnectionCallbacks listener : childConnectionListeners) {
             listener.onConnected(bundle);
         }
@@ -276,16 +278,6 @@ public class MainActivity extends BaseActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-    }
-
-    /**
-     * Launch {@link SaunaDetailsActivity} for {@link Sauna}
-     * @param sauna {@link Sauna} to display
-     */
-    public void startDetailsActivity(Sauna sauna) {
-        Intent startIntent = new Intent(this, SaunaDetailsActivity.class);
-        startIntent.putExtra(DETAILS_SAUNA, sauna);
-        startActivity(startIntent);
     }
 
     /**
