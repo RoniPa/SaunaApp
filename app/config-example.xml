@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sha1_fingerprint">your fingerprint here</string>
+    <string name="banner_ad_unit_id">your ad unit id here</string>
+</resources>
