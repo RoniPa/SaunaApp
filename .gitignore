@@ -2,6 +2,9 @@
 config.xml
 google-services.json
 
+# Ext libs
+libs/*
+
 # Built application files
 *.apk
 *.ap_

@@ -1,14 +1,19 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
+import tofira.imagepicker.PickerBuilder;
 
 public class EditSaunaActivity extends BaseActivity implements
         OnMapReadyCallback, GoogleMap.OnMapClickListener {
@@ -35,6 +41,7 @@ public class EditSaunaActivity extends BaseActivity implements
     private EditText nameEditText;
     private EditText descriptionEditText;
     private DatabaseReference mFirebaseSaunaRef;
+    private ImageView mainImageView;
 
     /**
      * Map used to pick {@link Sauna} latitude & longitude
@@ -52,6 +59,7 @@ public class EditSaunaActivity extends BaseActivity implements
 
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
+        mainImageView = (ImageView) findViewById(R.id.mainImageView);
 
         mFirebaseSaunaRef = FirebaseDatabase.getInstance()
                 .getReference().child(BaseActivity.SAUNAS_CHILD);
@@ -264,5 +272,23 @@ public class EditSaunaActivity extends BaseActivity implements
 
         mFirebaseSaunaRef.child(id).setValue(sauna);
         return true;
+    }
+
+    /**
+     * Pick main sauna profile image
+     */
+    public void selectPicture(View view) {
+        new PickerBuilder(EditSaunaActivity.this, PickerBuilder.SELECT_FROM_CAMERA)
+                .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
+                    @Override
+                    public void onImageReceived(Uri imageUri) {
+                        Toast.makeText(EditSaunaActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
+                        mainImageView.setImageURI(imageUri);
+                    }
+                })
+                .setImageName("testImage")
+                .setImageFolderName("testFolder")
+                .withTimeStamp(false)
+                .start();
     }
 }

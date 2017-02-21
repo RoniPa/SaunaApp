@@ -17,6 +17,19 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:id="@+id/textInputLayout">
 
+    <ImageView
+        android:id="@+id/mainImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imagePickerBtn"
+        android:text="@string/image_picker_text"
+        android:onClick="selectPicture">
+    </Button>
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -23,6 +23,11 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay">
+            <Button
+                android:id="@+id/vitun_nappi"
+                android:text="Vitun nappi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </android.support.v7.widget.Toolbar>
 

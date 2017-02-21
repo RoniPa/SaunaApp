@@ -8,5 +8,8 @@ You need Google Play Service SDK tools installed to Android Studio.
 2. Go to your Firebase console and download google-services.json. Add it to app folder.
 3. Save config-example.xml to resources with your data as config.xml
 
+## External libraries
+* [ImagePickerWithCrop](https://github.com/Tofira/ImagePickerWithCrop)
+
 <img src="/screenshots/1.png?raw=true" width="440"/> <img src="/screenshots/4.png?raw=true" width="440"/>
 <img src="/screenshots/2.png?raw=true" width="440"/> <img src="/screenshots/3.png?raw=true" width="440"/>

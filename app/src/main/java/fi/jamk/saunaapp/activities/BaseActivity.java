@@ -1,6 +1,7 @@
 package fi.jamk.saunaapp.activities;
 
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -11,6 +12,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -66,5 +68,14 @@ public abstract class BaseActivity extends AppCompatActivity {
             cacheExpiration = 0;
         }
         return mFirebaseRemoteConfig.fetch(cacheExpiration);
+    }
+
+    public Locale getLocale() {
+        // API level 24
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return getResources().getConfiguration().getLocales().get(0);
+        } else {
+            return getResources().getConfiguration().locale;
+        }
     }
 }

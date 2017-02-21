@@ -161,7 +161,8 @@ public class SaunaListFragment extends Fragment implements
                 viewHolder.descriptionTextView
                         .setText(sauna.getDescription() +", "+
                                 StringFormat.roundedKilometersShort(
-                                        getContext(), distanceInKilometers));
+                                        ((BaseActivity)getContext()).getLocale(),
+                                        distanceInKilometers));
 
                 viewHolder.nameTextView.setText(sauna.getName());
                 if (sauna.getPhotoUrl() == null) {

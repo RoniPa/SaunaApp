@@ -48,6 +48,16 @@ package="fi.jamk.saunaapp">
         android:theme="@style/AppTheme.NoActionBar">
         <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="fi.jamk.saunaapp.activities.MainActivity" />
     </activity>
+
+    <!-- ImagePickerWithCrop -->
+    <activity
+        android:name="tofira.imagepicker.TempActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/Theme.AppCompat.Translucent"/>
+    <activity
+        android:name="com.yalantis.ucrop.UCropActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 </application>
 
 </manifest>

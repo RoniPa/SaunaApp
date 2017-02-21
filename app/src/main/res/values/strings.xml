@@ -32,6 +32,7 @@
     <string name="title_activity_edit_sauna">Edit Sauna</string>
     <string name="name_hint">Write a name</string>
     <string name="description_hint">Write a description</string>
+    <string name="image_picker_text">Select sauna picture</string>
 
     <!-- Strings related to UserProfileActivity -->
     <string name="title_activity_user_profile">User profile</string>

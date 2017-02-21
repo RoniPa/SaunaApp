@@ -3,6 +3,7 @@ package fi.jamk.saunaapp.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -17,6 +18,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.appinvite.AppInvite;
 import com.google.android.gms.appinvite.AppInviteInvitation;
@@ -42,6 +46,7 @@ import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
+import tofira.imagepicker.PickerBuilder;
 
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
@@ -149,6 +154,25 @@ public class MainActivity extends BaseActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        Button vitunNappi = (Button)findViewById(R.id.vitun_nappi);
+        vitunNappi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "Vitun nappia on painettu nyt");
+                new PickerBuilder(MainActivity.this, PickerBuilder.SELECT_FROM_CAMERA)
+                        .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
+                            @Override
+                            public void onImageReceived(Uri imageUri) {
+                                Toast.makeText(MainActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .setImageName("testImage")
+                        .setImageFolderName("testFolder")
+                        .withTimeStamp(false)
+                        .start();
+            }
+        });
     }
 
     @Override

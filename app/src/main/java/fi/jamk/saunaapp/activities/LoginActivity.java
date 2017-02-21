@@ -85,6 +85,11 @@ public class LoginActivity extends BaseActivity implements
             } else {
                 // Google Sign In failed
                 Log.e(TAG, "Google Sign In failed - "+ result.getStatus());
+
+                Toast toast = Toast.makeText(this, "Google Sign In failed", Toast.LENGTH_SHORT);
+                toast.show();
+
+                signInIntent = null;
             }
         }
     }
