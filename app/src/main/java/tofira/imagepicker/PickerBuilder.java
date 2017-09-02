@@ -3,11 +3,8 @@ package tofira.imagepicker;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
 
 import com.yalantis.ucrop.UCrop;
-
-import java.io.Serializable;
 
 /**
  * Created by Mickael on 13/10/2016.
@@ -20,25 +17,25 @@ public class PickerBuilder {
     private onPermissionRefusedListener permissionRefusedListener;
     protected onImageReceivedListener imageReceivedListener;
     private PickerManager pickerManager;
-    public PickerBuilder(Activity activity, int type)
-    {
-        this.activity = activity;
-        pickerManager = (type == PickerBuilder.SELECT_FROM_GALLERY) ? new ImagePickerManager(activity) : new CameraPickerManager(activity);
 
+    public PickerBuilder(Activity activity, int type) {
+        this.activity = activity;
+        this.pickerManager =
+                (type == PickerBuilder.SELECT_FROM_GALLERY) ?
+                        new ImagePickerManager(activity) :
+                        new CameraPickerManager(activity);
     }
 
     public interface onPermissionRefusedListener {
         void onPermissionRefused();
     }
 
-    public interface onImageReceivedListener
-    {
+    public interface onImageReceivedListener {
         void onImageReceived(Uri imageUri);
     }
 
 
-    public void start()
-    {
+    public void start() {
         Intent intent = new Intent(activity, TempActivity.class);
         activity.startActivity(intent);
 

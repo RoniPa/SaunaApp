@@ -1,13 +1,11 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -28,10 +26,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
 
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -44,7 +39,6 @@ import java.util.List;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
-import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 import tofira.imagepicker.PickerBuilder;
 
@@ -161,15 +155,15 @@ public class MainActivity extends BaseActivity implements
             public void onClick(View view) {
                 Log.d(TAG, "Vitun nappia on painettu nyt");
                 new PickerBuilder(MainActivity.this, PickerBuilder.SELECT_FROM_CAMERA)
-                        .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
-                            @Override
-                            public void onImageReceived(Uri imageUri) {
-                                Toast.makeText(MainActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
+                        .setOnImageReceivedListener(
+                            new PickerBuilder.onImageReceivedListener() {
+                                @Override
+                                public void onImageReceived(Uri imageUri) {
+                                    Toast.makeText(MainActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
+                                }
                             }
-                        })
-                        .setImageName("testImage")
-                        .setImageFolderName("testFolder")
-                        .withTimeStamp(false)
+                        )
+                        .setCropScreenColor(Color.CYAN)
                         .start();
             }
         });

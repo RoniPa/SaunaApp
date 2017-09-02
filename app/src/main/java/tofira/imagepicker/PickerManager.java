@@ -2,46 +2,42 @@ package tofira.imagepicker;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-
-import com.github.jksiezni.permissive.PermissionsGrantedListener;
-import com.github.jksiezni.permissive.PermissionsRefusedListener;
-import com.github.jksiezni.permissive.Permissive;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.providers.GenericFileProvider;
 
 
 /**
  * Created by Mickael on 10/10/2016.
  */
 
-public abstract  class PickerManager {
+public abstract class PickerManager {
     public static final int REQUEST_CODE_SELECT_IMAGE = 200;
     public static final int REQUEST_CODE_IMAGE_PERMISSION = 201;
     protected Uri mProcessingPhotoUri;
     private boolean withTimeStamp = true;
     private String folder = null;
     private String imageName;
+    private Uri imageFileUri;
     protected Activity activity;
     private UCrop uCrop;
     protected PickerBuilder.onImageReceivedListener imageReceivedListener;
     protected PickerBuilder.onPermissionRefusedListener permissionRefusedListener;
-    private int cropActivityColor = R.color.colorPrimary;
+    private int cropActivityColor = Color.MAGENTA;
     public PickerManager setOnImageReceivedListener(PickerBuilder.onImageReceivedListener listener) {
         this.imageReceivedListener = listener;
         return this;
@@ -93,24 +89,33 @@ public abstract  class PickerManager {
 
     protected Uri getImageFile()
     {
+        if (this.imageFileUri != null) {
+            return this.imageFileUri;
+        }
+
         String imagePathStr = Environment.getExternalStorageDirectory() + "/" +
                 (folder == null ?
-                Environment.DIRECTORY_DCIM + "/" + activity.getString(R.string.app_name) :
+                "Pictures/" + activity.getString(R.string.app_name) :
                 folder);
 
         File path = new File(imagePathStr);
-        if (!path.exists()) {
-            path.mkdir();
+        if (!path.exists() && !path.mkdir()) {
+            throw new RuntimeException("Path doesn't exist and could not be created.");
         }
 
         String finalPhotoName = imageName +
-                (withTimeStamp ? "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(System.currentTimeMillis())) :  "")
-                + ".jpg";
+            (withTimeStamp ? "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date(System.currentTimeMillis())) :  "")
+            + ".jpg";
 
        // long currentTimeMillis = System.currentTimeMillis();
        // String photoName = imageName + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(currentTimeMillis)) + ".jpg";
         File photo = new File(path, finalPhotoName);
-        return Uri.fromFile(photo);
+        this.imageFileUri = GenericFileProvider.getUriForFile(
+                    this.activity,
+                    this.activity.getApplicationContext().getPackageName() + ".providers",
+                    photo);
+
+        return this.imageFileUri;
     }
 
     public void setUri(Uri uri)
@@ -120,17 +125,17 @@ public abstract  class PickerManager {
 
     public void startCropActivity()
     {
-        if(uCrop == null)
-        {
-            uCrop = UCrop.of(mProcessingPhotoUri, getImageFile());
-            uCrop = uCrop.useSourceImageAspectRatio();
+        if(uCrop == null) {
             UCrop.Options options = new UCrop.Options();
-            options.setFreeStyleCropEnabled(true);
-
+            options.setFreeStyleCropEnabled(false);
             options.setToolbarColor(cropActivityColor);
             options.setStatusBarColor(cropActivityColor);
             options.setActiveWidgetColor(cropActivityColor);
-            uCrop = uCrop.withOptions(options);
+
+            uCrop = UCrop
+                    .of(mProcessingPhotoUri, getImageFile())
+                    .withAspectRatio(1, 1)
+                    .withOptions(options);
         }
 
         uCrop.start(activity);
