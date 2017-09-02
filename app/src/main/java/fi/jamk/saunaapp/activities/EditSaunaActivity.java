@@ -286,9 +286,6 @@ public class EditSaunaActivity extends BaseActivity implements
                         mainImageView.setImageURI(imageUri);
                     }
                 })
-                .setImageName("testImage")
-                .setImageFolderName("testFolder")
-                .withTimeStamp(false)
                 .start();
     }
 }

@@ -107,8 +107,8 @@ public abstract class PickerManager {
             (withTimeStamp ? "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date(System.currentTimeMillis())) :  "")
             + ".jpg";
 
-       // long currentTimeMillis = System.currentTimeMillis();
-       // String photoName = imageName + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(currentTimeMillis)) + ".jpg";
+        // long currentTimeMillis = System.currentTimeMillis();
+        // String photoName = imageName + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(currentTimeMillis)) + ".jpg";
         File photo = new File(path, finalPhotoName);
         this.imageFileUri = GenericFileProvider.getUriForFile(
                     this.activity,

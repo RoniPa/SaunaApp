@@ -2,6 +2,8 @@
 config.xml
 google-services.json
 
+.idea/*
+
 # Ext libs
 libs/*
 
