@@ -114,9 +114,9 @@ public abstract class PickerManager {
         return this.imageFileUri;
     }
 
-    public void setUri(Uri uri)
+    public void setImageFile(Uri uri)
     {
-
+        this.imageFileUri = uri;
     }
 
     public void startCropActivity()
@@ -176,5 +176,17 @@ public abstract class PickerManager {
     public PickerManager setCustomizedUcrop(UCrop customizedUcrop) {
         this.uCrop = customizedUcrop;
         return this;
+    }
+
+    public String getImageFolderName() {
+        return this.folder;
+    }
+
+    public String getImageName() {
+        return this.imageName;
+    }
+
+    public boolean isWithTimeStamp() {
+        return this.withTimeStamp;
     }
 }

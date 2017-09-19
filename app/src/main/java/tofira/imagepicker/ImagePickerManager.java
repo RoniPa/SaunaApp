@@ -25,7 +25,7 @@ public class ImagePickerManager extends PickerManager {
     }
 
     @Override
-    public void setUri(Uri uri)
+    public void setImageFile(Uri uri)
     {
         mProcessingPhotoUri = uri;
     }

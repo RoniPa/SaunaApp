@@ -148,25 +148,6 @@ public class MainActivity extends BaseActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        Button vitunNappi = (Button) findViewById(R.id.vitun_nappi);
-        vitunNappi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Vitun nappia on painettu nyt");
-                new PickerBuilder(MainActivity.this, PickerBuilder.SELECT_FROM_GALLERY)
-                        .setOnImageReceivedListener(
-                            new PickerBuilder.onImageReceivedListener() {
-                                @Override
-                                public void onImageReceived(Uri imageUri) {
-                                    Toast.makeText(MainActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        )
-                        .setCropScreenColor(Color.CYAN)
-                        .start();
-            }
-        });
     }
 
     @Override
