@@ -278,7 +278,7 @@ public class EditSaunaActivity extends BaseActivity implements
      * Pick main sauna profile image
      */
     public void selectPicture(View view) {
-        new PickerBuilder(EditSaunaActivity.this, PickerBuilder.SELECT_FROM_CAMERA)
+        new PickerBuilder(EditSaunaActivity.this, PickerBuilder.SELECT_FROM_GALLERY)
                 .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
                     @Override
                     public void onImageReceived(Uri imageUri) {

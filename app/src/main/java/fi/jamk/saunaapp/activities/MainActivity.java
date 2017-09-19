@@ -149,12 +149,12 @@ public class MainActivity extends BaseActivity implements
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        Button vitunNappi = (Button)findViewById(R.id.vitun_nappi);
+        Button vitunNappi = (Button) findViewById(R.id.vitun_nappi);
         vitunNappi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "Vitun nappia on painettu nyt");
-                new PickerBuilder(MainActivity.this, PickerBuilder.SELECT_FROM_CAMERA)
+                new PickerBuilder(MainActivity.this, PickerBuilder.SELECT_FROM_GALLERY)
                         .setOnImageReceivedListener(
                             new PickerBuilder.onImageReceivedListener() {
                                 @Override

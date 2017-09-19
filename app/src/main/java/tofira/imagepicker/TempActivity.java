@@ -4,11 +4,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.yalantis.ucrop.UCrop;
+
+import fi.jamk.saunaapp.R;
 
 import static com.yalantis.ucrop.UCrop.REQUEST_CROP;
 
 public class TempActivity extends AppCompatActivity {
 
+    private static final String TAG = "ImagePicker";
     PickerManager pickerManager;
 
     @Override
@@ -25,6 +32,13 @@ public class TempActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK) {
+            final Throwable cropError = UCrop.getError(data);
+            if (cropError != null) {
+                Log.e(TAG, "handleCropError: ", cropError);
+                Toast.makeText(TempActivity.this, cropError.getMessage(), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(TempActivity.this, R.string.toast_unexpected_error, Toast.LENGTH_SHORT).show();
+            }
             finish();
             return;
         }

@@ -28,7 +28,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile 'com.github.ronipa:ucrop:2.2.2'
+    compile 'com.github.yalantis:ucrop:2.2.1'
     compile 'com.github.jksiezni.permissive:permissive:0.2'
 
     compile 'com.android.support:design:26.0.1'

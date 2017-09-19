@@ -37,7 +37,7 @@ public abstract class PickerManager {
     private UCrop uCrop;
     protected PickerBuilder.onImageReceivedListener imageReceivedListener;
     protected PickerBuilder.onPermissionRefusedListener permissionRefusedListener;
-    private int cropActivityColor = Color.MAGENTA;
+    private int cropActivityColor = Color.DKGRAY;
     public PickerManager setOnImageReceivedListener(PickerBuilder.onImageReceivedListener listener) {
         this.imageReceivedListener = listener;
         return this;
@@ -110,11 +110,7 @@ public abstract class PickerManager {
         // long currentTimeMillis = System.currentTimeMillis();
         // String photoName = imageName + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date(currentTimeMillis)) + ".jpg";
         File photo = new File(path, finalPhotoName);
-        this.imageFileUri = GenericFileProvider.getUriForFile(
-                    this.activity,
-                    this.activity.getApplicationContext().getPackageName() + ".providers",
-                    photo);
-
+        this.imageFileUri = Uri.fromFile(photo);
         return this.imageFileUri;
     }
 
@@ -132,8 +128,9 @@ public abstract class PickerManager {
             options.setStatusBarColor(cropActivityColor);
             options.setActiveWidgetColor(cropActivityColor);
 
+            Uri target = getImageFile();
             uCrop = UCrop
-                    .of(mProcessingPhotoUri, getImageFile())
+                    .of(mProcessingPhotoUri, target)
                     .withAspectRatio(1, 1)
                     .withOptions(options);
         }
