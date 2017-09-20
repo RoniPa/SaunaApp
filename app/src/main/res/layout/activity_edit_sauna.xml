@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_edit_sauna"
     android:orientation="vertical"
@@ -21,25 +22,30 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".45"
-                    android:id="@+id/imagePickerBtn"
-                    android:text="@string/image_picker_text"
-                    android:onClick="selectPicture">
-                </Button>
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="end"
+                android:onClick="selectPicture">
+
                 <ImageView
                     android:id="@+id/mainImageView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".50"/>
-        </LinearLayout>
+                    android:background="@color/colorDisabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/sauna_pic_thumb" />
 
-        <EditText
+                <ImageButton
+                    android:layout_gravity="center"
+                    android:background="@color/colorTransparent"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="@string/sauna_pic_icon"
+                    app:srcCompat="@drawable/ic_photo_size_select_actual_white"/>
+            </FrameLayout>
+
+            <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"

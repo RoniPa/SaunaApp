@@ -35,6 +35,7 @@
     <string name="description_hint">Write a description</string>
     <string name="image_picker_text">Select sauna picture</string>
     <string name="sauna_pic_thumb">Sauna picture thumbnail</string>
+    <string name="sauna_pic_icon">Sauna picture icon</string>
 
     <!-- Strings related to UserProfileActivity -->
     <string name="title_activity_user_profile">User profile</string>

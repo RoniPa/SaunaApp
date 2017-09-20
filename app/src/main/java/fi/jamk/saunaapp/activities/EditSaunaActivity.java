@@ -282,7 +282,6 @@ public class EditSaunaActivity extends BaseActivity implements
                 .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
                     @Override
                     public void onImageReceived(Uri imageUri) {
-                        Toast.makeText(EditSaunaActivity.this, "Got image - " + imageUri, Toast.LENGTH_LONG).show();
                         mainImageView.setImageURI(imageUri);
                     }
                 })

@@ -32,12 +32,14 @@ public class TempActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK) {
-            final Throwable cropError = UCrop.getError(data);
-            if (cropError != null) {
-                Log.e(TAG, "handleCropError: ", cropError);
-                Toast.makeText(TempActivity.this, cropError.getMessage(), Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(TempActivity.this, R.string.toast_unexpected_error, Toast.LENGTH_SHORT).show();
+            if (resultCode != RESULT_CANCELED) {
+                final Throwable cropError = UCrop.getError(data);
+                if (cropError != null) {
+                    Log.e(TAG, "handleCropError: ", cropError);
+                    Toast.makeText(TempActivity.this, cropError.getMessage(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(TempActivity.this, R.string.toast_unexpected_error, Toast.LENGTH_SHORT).show();
+                }
             }
             finish();
             return;
