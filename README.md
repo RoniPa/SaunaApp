@@ -1,7 +1,7 @@
 # SaunaApp
 Sample application utilizing Firebase and other stuff
 
-##Installation
+## Installation
 You need Google Play Service SDK tools installed to Android Studio.
 
 1. Add your Android Studio sha1 fingerprint to Firebase project
@@ -10,6 +10,11 @@ You need Google Play Service SDK tools installed to Android Studio.
 
 ## External libraries
 * [ImagePickerWithCrop](https://github.com/Tofira/ImagePickerWithCrop)
+* which uses [UCrop](https://github.com/Yalantis/uCrop)
+
+<hr/>
+
+## Screenshots
 
 <img src="/screenshots/1.png?raw=true" width="440"/> <img src="/screenshots/4.png?raw=true" width="440"/>
 <img src="/screenshots/2.png?raw=true" width="440"/> <img src="/screenshots/3.png?raw=true" width="440"/>
