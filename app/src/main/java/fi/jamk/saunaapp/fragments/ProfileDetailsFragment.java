@@ -34,13 +34,11 @@ public class ProfileDetailsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param userId Firebase User id (not used at the moment)
      * @return A new instance of fragment ProfileDetailsFragment.
      */
-    public static ProfileDetailsFragment newInstance(String userId) {
+    public static ProfileDetailsFragment newInstance() {
         ProfileDetailsFragment fragment = new ProfileDetailsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }

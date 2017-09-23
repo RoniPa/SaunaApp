@@ -39,10 +39,11 @@ import fi.jamk.saunaapp.viewholders.SaunaViewHolder;
  * interface.
  */
 public class ProfileSaunaListFragment extends Fragment {
-    private static final String TAG = "ProfileSaunaList";
-    private static final String ARG_USER_ID = "user_id";
-    private String userId;
+    public static final String TAG = "ProfileSaunaList";
+    public static final String ARG_USER_ID = "saunaapp:user_id";
 
+    private View mListView;
+    private String userId;
     private OnListFragmentInteractionListener mListener;
     private ValueEventListener valueListener;
     private Query mFirebaseDatabaseReference;
@@ -68,7 +69,6 @@ public class ProfileSaunaListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
         }
@@ -77,7 +77,17 @@ public class ProfileSaunaListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile_sauna_list, container, false);
+        mListView = inflater.inflate(R.layout.fragment_profile_sauna_list, container, false);
+
+        if (userId != null) {
+            this.fetchDataAndPopulate(userId);
+        }
+
+        return mListView;
+    }
+
+    public void fetchDataAndPopulate(String userId) {
+        this.userId = userId;
 
         mFirebaseDatabaseReference = FirebaseDatabase
                 .getInstance()
@@ -86,8 +96,8 @@ public class ProfileSaunaListFragment extends Fragment {
                 .orderByChild("owner")
                 .equalTo(userId);
 
-        Context context = view.getContext();
-        mSaunaRecyclerView = (RecyclerView) view.findViewById(R.id.profile_sauna_recycler_view);
+        Context context = mListView.getContext();
+        mSaunaRecyclerView = (RecyclerView) mListView.findViewById(R.id.profile_sauna_recycler_view);
         mSaunaRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerViewAdapter = new FirebaseRecyclerAdapter<Sauna,
                 SaunaViewHolder>(
@@ -130,8 +140,6 @@ public class ProfileSaunaListFragment extends Fragment {
                             @Override
                             public void onLongItemClick(View view, int position) {}
                         }));
-
-        return view;
     }
 
 

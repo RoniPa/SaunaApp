@@ -36,7 +36,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/sauna_pic_thumb" />
 
-                <ImageButton
+                <ImageView
                     android:layout_gravity="center"
                     android:background="@color/colorTransparent"
                     android:layout_width="40dp"

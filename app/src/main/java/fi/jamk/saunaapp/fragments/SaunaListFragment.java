@@ -99,7 +99,6 @@ public class SaunaListFragment extends Fragment implements
         mUserLocationService = UserLocationService.newInstance(
                 ((ChildConnectionNotifier)getActivity()).getApiClient());
 
-
         return rootView;
     }
 
