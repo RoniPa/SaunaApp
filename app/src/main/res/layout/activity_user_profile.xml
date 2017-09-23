@@ -9,20 +9,18 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <fragment android:name="fi.jamk.saunaapp.fragments.ProfileDetailsFragment"
             android:id="@+id/profileDetailsFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:layout="@layout/fragment_profile_details">
-        </fragment>
-
-        <fragment android:name="fi.jamk.saunaapp.fragments.ProfileSaunaListFragment"
+            tools:layout="@layout/fragment_profile_details"/>
+        <fragment
             android:id="@+id/profileSaunasFragment"
+            android:name="fi.jamk.saunaapp.fragments.ProfileSaunaListFragment"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            tools:layout="@layout/fragment_profile_sauna_list">
-        </fragment>
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_profile_sauna_list"/>
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton

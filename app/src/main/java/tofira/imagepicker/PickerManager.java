@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -123,7 +124,10 @@ public abstract class PickerManager {
     {
         if(uCrop == null) {
             UCrop.Options options = new UCrop.Options();
+
+            // Todo: Use freestyle cropping, when possible with locked aspect ratio.
             options.setFreeStyleCropEnabled(false);
+
             options.setToolbarColor(cropActivityColor);
             options.setStatusBarColor(cropActivityColor);
             options.setActiveWidgetColor(cropActivityColor);
