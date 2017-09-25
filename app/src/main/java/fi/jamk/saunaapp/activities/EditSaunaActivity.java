@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,13 +24,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -51,6 +55,9 @@ public class EditSaunaActivity extends BaseActivity implements
     // Firebase storage reference for uploading images
     StorageReference storageRef;
     FirebaseUser user;
+
+    private ProgressBar imageUploadBar;
+    private ImageView imageIconView;
 
     private Sauna sauna;
     private MapView saunaMapView;
@@ -92,6 +99,11 @@ public class EditSaunaActivity extends BaseActivity implements
             setTitle(R.string.title_activity_add_sauna);
             sauna = new Sauna();
         }
+
+        imageIconView = findViewById(R.id.imageIconView);
+        imageUploadBar = findViewById(R.id.imageUploadBar);
+        imageUploadBar.setVisibility(View.INVISIBLE);
+        imageUploadBar.setActivated(false);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -313,16 +325,36 @@ public class EditSaunaActivity extends BaseActivity implements
 
                 UploadTask task = uploadImage(imageUri);
                 if (task != null) {
+                    imageIconView.setVisibility(View.INVISIBLE);
+                    imageUploadBar.setProgress(0);
+                    imageUploadBar.setVisibility(View.VISIBLE);
+                    imageUploadBar.setActivated(true);
+
                     task.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception ex) {
                             Toast.makeText(EditSaunaActivity.this, "File upload failed", Toast.LENGTH_SHORT).show();
                             Log.e(TAG, ex.toString());
+
+                            imageIconView.setVisibility(View.VISIBLE);
+                            imageUploadBar.setVisibility(View.INVISIBLE);
+                            imageUploadBar.setActivated(false);
                         }
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(EditSaunaActivity.this, "File uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                            imageIconView.setVisibility(View.VISIBLE);
+                            imageUploadBar.setVisibility(View.INVISIBLE);
+                            imageUploadBar.setActivated(false);
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount()) + .5);
+                            imageUploadBar.setProgress(progress);
+                            Log.d(TAG, "Image upload " + progress + " % ready");
                         }
                     });
                 }
