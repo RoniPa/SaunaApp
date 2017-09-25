@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Menu;
@@ -22,9 +23,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
@@ -35,6 +47,10 @@ public class EditSaunaActivity extends BaseActivity implements
         OnMapReadyCallback, GoogleMap.OnMapClickListener {
     private static final float MAP_ZOOM = 12.0f;
     private static final String TAG = "EditSaunaActivity";
+
+    // Firebase storage reference for uploading images
+    StorageReference storageRef;
+    FirebaseUser user;
 
     private Sauna sauna;
     private MapView saunaMapView;
@@ -76,6 +92,17 @@ public class EditSaunaActivity extends BaseActivity implements
             setTitle(R.string.title_activity_add_sauna);
             sauna = new Sauna();
         }
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            // Not signed in, launch the Login activity
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
     }
 
     @Override
@@ -275,16 +302,55 @@ public class EditSaunaActivity extends BaseActivity implements
     }
 
     /**
-     * Pick main sauna profile image
+     * Pick main sauna profile image.
      */
     public void selectPicture(View view) {
         new PickerBuilder(EditSaunaActivity.this, PickerBuilder.SELECT_FROM_GALLERY)
-                .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
-                    @Override
-                    public void onImageReceived(Uri imageUri) {
-                        mainImageView.setImageURI(imageUri);
-                    }
-                })
-                .start();
+            .setOnImageReceivedListener(new PickerBuilder.onImageReceivedListener() {
+                @Override
+                public void onImageReceived(Uri imageUri) {
+                mainImageView.setImageURI(imageUri);
+
+                UploadTask task = uploadImage(imageUri);
+                if (task != null) {
+                    task.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception ex) {
+                            Toast.makeText(EditSaunaActivity.this, "File upload failed", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, ex.toString());
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditSaunaActivity.this, "File uploaded successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                }
+            })
+            .start();
+    }
+
+    /**
+     * Upload file from given Uri by stream.
+     * File is uploaded to storage ref path:
+     *
+     *      <user id>/images/<file name>
+     *
+     * @param imageUri      Uri to local file
+     */
+    private UploadTask uploadImage(Uri imageUri) {
+        File f = new File(imageUri.getPath());
+        String uid = user.getUid();
+        StorageReference uploadRef = storageRef.child(uid + "/images/" + f.getName());
+
+        try {
+            InputStream is = new FileInputStream(f);
+            return uploadRef.putStream(is);
+        } catch (FileNotFoundException ex) {
+            Toast.makeText(EditSaunaActivity.this, "Could not upload - file was not found", Toast.LENGTH_SHORT).show();
+        }
+
+        return null;
     }
 }
