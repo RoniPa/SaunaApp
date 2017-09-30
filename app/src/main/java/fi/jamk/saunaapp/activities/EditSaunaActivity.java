@@ -217,6 +217,9 @@ public class EditSaunaActivity extends BaseActivity implements
                     finish();
                 }
                 return true;
+            case R.id.action_delete:
+                deleteSauna();
+                finish();
             default:
                 // The user's action was not recognized.
                 return super.onOptionsItemSelected(item);
@@ -307,6 +310,13 @@ public class EditSaunaActivity extends BaseActivity implements
         return true;
     }
 
+    private void deleteSauna() {
+        String id = sauna.getId();
+
+        if (id != null) {
+            mFirebaseSaunaRef.child(id).removeValue();
+        }
+    }
     /**
      * Pick main sauna profile image.
      */

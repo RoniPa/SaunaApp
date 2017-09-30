@@ -19,7 +19,7 @@
             android:id="@+id/profileSaunasFragment"
             android:name="fi.jamk.saunaapp.fragments.ProfileSaunaListFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             tools:layout="@layout/fragment_profile_sauna_list"/>
     </LinearLayout>
 

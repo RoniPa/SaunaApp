@@ -23,35 +23,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <FrameLayout
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:layout_gravity="end"
-                android:onClick="selectPicture">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="140dp">
+                <FrameLayout
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    android:layout_gravity="end"
+                    android:onClick="selectPicture">
 
-                <ImageView
-                    android:id="@+id/mainImageView"
-                    android:background="@color/colorDisabled"
+                    <ImageView
+                        android:id="@+id/mainImageView"
+                        android:background="@color/colorDisabled"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/sauna_pic_thumb" />
+
+                    <ProgressBar
+                        android:layout_gravity="center"
+                        android:id="@+id/imageUploadBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        />
+
+                    <ImageView
+                        android:layout_gravity="center"
+                        android:id="@+id/imageIconView"
+                        android:background="@color/colorTransparent"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/sauna_pic_icon"
+                        app:srcCompat="@drawable/ic_photo_size_select_actual_white"/>
+                </FrameLayout>
+
+                <com.google.android.gms.maps.MapView
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:id="@+id/editSaunaMapView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/sauna_pic_thumb" />
-
-                <ProgressBar
-                    android:layout_gravity="center"
-                    android:id="@+id/imageUploadBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
-
-                <ImageView
-                    android:layout_gravity="center"
-                    android:id="@+id/imageIconView"
-                    android:background="@color/colorTransparent"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/sauna_pic_icon"
-                    app:srcCompat="@drawable/ic_photo_size_select_actual_white"/>
-            </FrameLayout>
+                    android:layout_height="140dp">
+                </com.google.android.gms.maps.MapView>
+            </LinearLayout>
 
             <EditText
             android:layout_width="match_parent"
@@ -73,15 +85,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <com.google.android.gms.maps.MapView
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:id="@+id/editSaunaMapView"
-        android:height="0dp"
-        android:layout_weight=".40"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp">
-    </com.google.android.gms.maps.MapView>
 </LinearLayout>

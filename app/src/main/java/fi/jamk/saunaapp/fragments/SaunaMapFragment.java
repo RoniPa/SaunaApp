@@ -325,7 +325,10 @@ public class SaunaMapFragment extends Fragment implements
                 // Remove marker from map
                 Marker m = markers.get(key);
                 reverseMarkers.remove(m);
-                m.remove();
+                if (m != null) {
+                    m.remove();
+                }
+
             }
 
             @Override

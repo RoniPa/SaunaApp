@@ -4,6 +4,7 @@
     <string name="action_profile">My profile</string>
     <string name="action_settings">Fresh Settings</string>
     <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
     <string name="action_invite">Invite Friends</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_login">Sign in</string>

@@ -97,7 +97,7 @@ public class ProfileSaunaListFragment extends Fragment {
                 .equalTo(userId);
 
         Context context = mListView.getContext();
-        mSaunaRecyclerView = (RecyclerView) mListView.findViewById(R.id.profile_sauna_recycler_view);
+        mSaunaRecyclerView = mListView.findViewById(R.id.profile_sauna_recycler_view);
         mSaunaRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerViewAdapter = new FirebaseRecyclerAdapter<Sauna,
                 SaunaViewHolder>(
