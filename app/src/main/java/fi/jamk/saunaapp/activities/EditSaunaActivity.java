@@ -264,9 +264,7 @@ public class EditSaunaActivity extends BaseActivity implements
             sauna.setName(nameEditText.getText().toString());
         }
         if (descriptionEditText != null) {
-            sauna.setDescription(
-                    descriptionEditText.getText().toString()
-            );
+            sauna.setDescription(descriptionEditText.getText().toString());
         }
         if (currentMapMarker != null) {
             sauna.setLatitude(currentMapMarker.getPosition().latitude);
@@ -296,14 +294,10 @@ public class EditSaunaActivity extends BaseActivity implements
         setModelValues();
 
         String id = sauna.getId();
-        String name = sauna.getName();
 
-        if (name == null || name.equals("") ||
-                sauna.getLatitude() <= 0.0d || sauna.getLongitude() <= 0.0d) {
+        if (!_validateData()) {
             return false;
         }
-
-        Log.w(TAG, "Id: "+id);
 
         if (id == null || id.equals("")) {
             id = mFirebaseSaunaRef.push().getKey();
@@ -384,5 +378,19 @@ public class EditSaunaActivity extends BaseActivity implements
         }
 
         return null;
+    }
+
+    /**
+     * Check sauna property validity
+     *
+     * @return boolean
+     */
+    private boolean _validateData() {
+        String name = sauna.getName();
+        return (
+                name != null && !name.equals("") &&
+                sauna.getLatitude() > 0.0d &&
+                sauna.getLongitude() > 0.0d
+        );
     }
 }

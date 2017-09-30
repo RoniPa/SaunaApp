@@ -134,8 +134,10 @@ public class ProfileSaunaListFragment extends Fragment {
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
+                                Sauna sauna = mRecyclerViewAdapter.getItem(position);
+                                sauna.setId(mRecyclerViewAdapter.getRef(position).getKey());
                                 ((UserProfileActivity)getActivity())
-                                        .startSaunaEditActivity(mRecyclerViewAdapter.getItem(position));
+                                        .startSaunaEditActivity(sauna);
                             }
                             @Override
                             public void onLongItemClick(View view, int position) {}

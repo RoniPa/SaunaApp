@@ -17,6 +17,9 @@ package fi.jamk.saunaapp.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
+
+import java.util.Locale;
 
 public class Sauna implements Parcelable {
 
@@ -30,7 +33,10 @@ public class Sauna implements Parcelable {
 
     public Sauna() {}
 
-    public Sauna(String description, String name, String photoUrl, String owner, double latitude, double longitude) {
+    public Sauna(String description, String name, String photoUrl, String owner, double latitude, double longitude, @Nullable String id) {
+        if (id != null) {
+            this.id = id;
+        }
         this.description = description;
         this.name = name;
         this.photoUrl = photoUrl;
@@ -70,6 +76,22 @@ public class Sauna implements Parcelable {
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
+    @Override
+    public String toString() {
+        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoUrl: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
+        return String.format(
+                Locale.ENGLISH,
+                outputFormat,
+                this.id == null ? "NULL" : this.id,
+                this.name == null ? "NULL" : this.name,
+                this.description == null ? "NULL" : this.description,
+                this.photoUrl == null ? "NULL" : this.photoUrl,
+                this.owner == null ? "NULL" : this.owner,
+                this.latitude,
+                this.longitude
+        );
+    }
+
     /**
      * Parcelable implementation.
      */
@@ -81,13 +103,13 @@ public class Sauna implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
         dest.writeString(description);
         dest.writeString(name);
         dest.writeString(photoUrl);
         dest.writeString(owner);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
+        dest.writeString(id);
     }
 
     public static final Parcelable.Creator<Sauna> CREATOR
@@ -101,12 +123,12 @@ public class Sauna implements Parcelable {
     };
 
     private Sauna(Parcel in) {
-        this.id = in.readString();
         this.description = in.readString();
         this.name = in.readString();
         this.photoUrl = in.readString();
         this.owner = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
+        this.id = in.readString();
     }
 }
