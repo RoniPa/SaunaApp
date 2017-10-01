@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -84,6 +86,7 @@ public class EditSaunaActivity extends BaseActivity implements
         descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
         mainImageView = (ImageView) findViewById(R.id.mainImageView);
 
+
         mFirebaseSaunaRef = FirebaseDatabase.getInstance()
                 .getReference().child(BaseActivity.SAUNAS_CHILD);
 
@@ -120,6 +123,15 @@ public class EditSaunaActivity extends BaseActivity implements
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+        if (sauna.getPhotoPath() != null) {
+            StorageReference imageRef = storageRef.child(sauna.getPhotoPath());
+
+            Glide.with(EditSaunaActivity.this)
+                    .using(new FirebaseImageLoader())
+                    .load(imageRef)
+                    .into(mainImageView);
+        }
     }
 
     @Override
