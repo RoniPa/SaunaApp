@@ -16,12 +16,15 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
@@ -55,6 +58,7 @@ public class SaunaListFragment extends Fragment implements
     private static final String TAG = "SaunaListFragment";
 
     private UserLocationService mUserLocationService;
+    private FirebaseStorage mFirebaseStorage;
 
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
@@ -78,6 +82,16 @@ public class SaunaListFragment extends Fragment implements
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mUserLocationService = UserLocationService.newInstance(
+                ((ChildConnectionNotifier)getActivity()).getApiClient());
+
+        mFirebaseStorage = FirebaseStorage.getInstance();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_list, container, false);
@@ -95,9 +109,6 @@ public class SaunaListFragment extends Fragment implements
         mAdView = (AdView) rootView.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
-
-        mUserLocationService = UserLocationService.newInstance(
-                ((ChildConnectionNotifier)getActivity()).getApiClient());
 
         return rootView;
     }
@@ -164,15 +175,14 @@ public class SaunaListFragment extends Fragment implements
                                         distanceInKilometers));
 
                 viewHolder.nameTextView.setText(sauna.getName());
-                if (sauna.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView
-                            .setImageDrawable(ContextCompat
-                                    .getDrawable(getContext(),
-                                            R.drawable.ic_account_circle_black_36dp));
-                } else {
+                if (sauna.getPhotoPath() != null) {
+                    StorageReference imageRef = mFirebaseStorage
+                            .getReference(sauna.getPhotoPath());
+
                     Glide.with(SaunaListFragment.this)
-                            .load(sauna.getPhotoUrl())
-                            .into(viewHolder.messengerImageView);
+                            .using(new FirebaseImageLoader())
+                            .load(imageRef)
+                            .into(viewHolder.saunaImageView);
                 }
             }
         };

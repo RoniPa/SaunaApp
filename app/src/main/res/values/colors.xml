@@ -6,4 +6,6 @@
     <color name="colorDisabled">#CECECE</color>
     <color name="colorTransparent">#00FFFFFF</color>
     <color name="color12opBlack">#12000000</color>
+    <color name="color37opBlack">#37000000</color>
+    <color name="color87opWhite">#87FFFFFF</color>
 </resources>

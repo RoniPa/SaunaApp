@@ -26,20 +26,20 @@ public class Sauna implements Parcelable {
     private String id;
     private String description;
     private String name;
-    private String photoUrl;
+    private String photoPath;
     private String owner;
     private double latitude;
     private double longitude;
 
     public Sauna() {}
 
-    public Sauna(String description, String name, String photoUrl, String owner, double latitude, double longitude, @Nullable String id) {
+    public Sauna(String description, String name, String photoPath, String owner, double latitude, double longitude, @Nullable String id) {
         if (id != null) {
             this.id = id;
         }
         this.description = description;
         this.name = name;
-        this.photoUrl = photoUrl;
+        this.photoPath = photoPath;
         this.owner = owner;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -60,11 +60,11 @@ public class Sauna implements Parcelable {
     }
     public void setName(String name) { this.name = name; }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    public String getPhotoPath() {
+        return photoPath;
     }
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public String getOwner() { return owner; }
@@ -78,14 +78,14 @@ public class Sauna implements Parcelable {
 
     @Override
     public String toString() {
-        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoUrl: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
+        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoPath: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
         return String.format(
                 Locale.ENGLISH,
                 outputFormat,
                 this.id == null ? "NULL" : this.id,
                 this.name == null ? "NULL" : this.name,
                 this.description == null ? "NULL" : this.description,
-                this.photoUrl == null ? "NULL" : this.photoUrl,
+                this.photoPath == null ? "NULL" : this.photoPath,
                 this.owner == null ? "NULL" : this.owner,
                 this.latitude,
                 this.longitude
@@ -105,7 +105,7 @@ public class Sauna implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(description);
         dest.writeString(name);
-        dest.writeString(photoUrl);
+        dest.writeString(photoPath);
         dest.writeString(owner);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
@@ -125,7 +125,7 @@ public class Sauna implements Parcelable {
     private Sauna(Parcel in) {
         this.description = in.readString();
         this.name = in.readString();
-        this.photoUrl = in.readString();
+        this.photoPath = in.readString();
         this.owner = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();

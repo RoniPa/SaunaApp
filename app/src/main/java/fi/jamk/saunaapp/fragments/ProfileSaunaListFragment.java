@@ -15,12 +15,15 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import fi.jamk.saunaapp.activities.BaseActivity;
 import fi.jamk.saunaapp.R;
@@ -47,6 +50,7 @@ public class ProfileSaunaListFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private ValueEventListener valueListener;
     private Query mFirebaseDatabaseReference;
+    private FirebaseStorage mFirebaseStorage;
 
     private RecyclerView mSaunaRecyclerView;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder> mRecyclerViewAdapter;
@@ -72,6 +76,8 @@ public class ProfileSaunaListFragment extends Fragment {
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
         }
+
+        mFirebaseStorage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -116,15 +122,14 @@ public class ProfileSaunaListFragment extends Fragment {
                         .setText(sauna.getDescription());
 
                 viewHolder.nameTextView.setText(sauna.getName());
-                if (sauna.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView
-                            .setImageDrawable(ContextCompat
-                                    .getDrawable(getContext(),
-                                            R.drawable.ic_account_circle_black_36dp));
-                } else {
+                if (sauna.getPhotoPath() != null) {
+                    StorageReference imageRef = mFirebaseStorage
+                            .getReference(sauna.getPhotoPath());
+
                     Glide.with(ProfileSaunaListFragment.this)
-                            .load(sauna.getPhotoUrl())
-                            .into(viewHolder.messengerImageView);
+                            .using(new FirebaseImageLoader())
+                            .load(imageRef)
+                            .into(viewHolder.saunaImageView);
                 }
             }
         };

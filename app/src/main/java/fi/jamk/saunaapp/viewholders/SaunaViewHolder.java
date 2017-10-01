@@ -1,11 +1,10 @@
 package fi.jamk.saunaapp.viewholders;
 
-import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import fi.jamk.saunaapp.R;
 
 /**
@@ -17,14 +16,14 @@ public class SaunaViewHolder extends BindableViewHolder<SaunaViewHolder.Binding>
 
     public TextView descriptionTextView;
     public TextView nameTextView;
-    public CircleImageView messengerImageView;
+    public ImageView saunaImageView;
 
     public SaunaViewHolder(View view) {
         super(view);
 
         descriptionTextView = (TextView) itemView.findViewById(R.id.descriptionTextView);
         nameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
-        messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+        saunaImageView = itemView.findViewById(R.id.saunaImageView);
     }
 
     @Override

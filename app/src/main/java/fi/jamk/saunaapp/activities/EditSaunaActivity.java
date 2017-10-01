@@ -102,6 +102,11 @@ public class EditSaunaActivity extends BaseActivity implements
 
         imageIconView = findViewById(R.id.imageIconView);
         imageUploadBar = findViewById(R.id.imageUploadBar);
+
+        imageUploadBar.getIndeterminateDrawable().setColorFilter(
+                getResources().getColor(R.color.color87opWhite, null),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+
         imageUploadBar.setVisibility(View.INVISIBLE);
         imageUploadBar.setActivated(false);
 
@@ -327,7 +332,9 @@ public class EditSaunaActivity extends BaseActivity implements
                 public void onImageReceived(Uri imageUri) {
                 mainImageView.setImageURI(imageUri);
 
-                UploadTask task = uploadImage(imageUri);
+                File f = new File(imageUri.getPath());
+                final String refPath = user.getUid() + "/images/" + f.getName();
+                UploadTask task = uploadImage(refPath, f);
                 if (task != null) {
                     imageIconView.setVisibility(View.INVISIBLE);
                     imageUploadBar.setProgress(0);
@@ -349,6 +356,7 @@ public class EditSaunaActivity extends BaseActivity implements
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(EditSaunaActivity.this, "File uploaded successfully", Toast.LENGTH_SHORT).show();
 
+                            sauna.setPhotoPath(refPath);
                             imageIconView.setVisibility(View.VISIBLE);
                             imageUploadBar.setVisibility(View.INVISIBLE);
                             imageUploadBar.setActivated(false);
@@ -373,12 +381,11 @@ public class EditSaunaActivity extends BaseActivity implements
      *
      *      <user id>/images/<file name>
      *
-     * @param imageUri      Uri to local file
+     * @param refPath      Storage path to upload to
+     * @param f            File to upload
      */
-    private UploadTask uploadImage(Uri imageUri) {
-        File f = new File(imageUri.getPath());
-        String uid = user.getUid();
-        StorageReference uploadRef = storageRef.child(uid + "/images/" + f.getName());
+    private UploadTask uploadImage(String refPath, File f) {
+        StorageReference uploadRef = storageRef.child(refPath);
 
         try {
             InputStream is = new FileInputStream(f);
