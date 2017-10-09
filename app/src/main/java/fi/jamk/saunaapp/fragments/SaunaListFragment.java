@@ -182,14 +182,14 @@ public class SaunaListFragment extends Fragment implements
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = mFirebaseAdapter.getItemCount();
+                int saunaCount = mFirebaseAdapter.getItemCount();
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 // If the recycler view is initially being loaded or the
                 // user is at the bottom of the list, scroll to the bottom
                 // of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
+                        (positionStart >= (saunaCount - 1) &&
                                 lastVisiblePosition == (positionStart - 1))) {
                     mSaunaRecyclerView.scrollToPosition(positionStart);
                 }
