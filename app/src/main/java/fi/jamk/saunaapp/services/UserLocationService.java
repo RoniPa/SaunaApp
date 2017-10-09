@@ -1,26 +1,39 @@
 package fi.jamk.saunaapp.services;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class UserLocationService implements LocationListener {
+    public static final int REQUEST_CHECK_SETTINGS = 556;
+
     private static final String TAG = "UserLocationService";
     private static LocationRequest mLocationRequest;
     private static List<LocationListener> listenerList;
-    private static Location cachedLastLocation;
+    private static Location cachedLocation;
 
     private GoogleApiClient apiClient;
 
@@ -35,20 +48,54 @@ public class UserLocationService implements LocationListener {
         return new UserLocationService(apiClient);
     }
 
-    public boolean requestLocationUpdates(Context ctx, LocationListener l) {
+    /**
+     * Request location updates for the given listener.
+     *
+     * If no permissions available for the activity return null,
+     * otherwise return {@link Task<LocationSettingsResponse>} for checking device settings.
+     *
+     * @param ctx   {@link Activity} context
+     * @param l     {@link LocationListener} to add
+     * @return  {@link Task<LocationSettingsResponse>} or null
+     */
+    public Task<LocationSettingsResponse> requestLocationUpdates(final Activity ctx, final LocationListener l) {
         boolean hasPermission = checkPermissionsAndStartLocationListener(ctx);
 
         if (hasPermission) {
             listenerList.add(l);
+
+            Task<LocationSettingsResponse> task = checkLocationSettings(ctx);
+            task.addOnSuccessListener(ctx, new OnSuccessListener<LocationSettingsResponse>() {
+                @Override
+                public void onSuccess(LocationSettingsResponse locationSettingsResponse) {}
+            });
+            task.addOnFailureListener(ctx, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    int statusCode = ((ApiException) e).getStatusCode();
+                    switch (statusCode) {
+                        case CommonStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                ResolvableApiException resolvable = (ResolvableApiException) e;
+                                resolvable.startResolutionForResult(ctx, REQUEST_CHECK_SETTINGS);
+                            } catch (IntentSender.SendIntentException sendEx) {
+                                // Ignore...
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            // Settings not satisfied, but no way to fix them.
+                            Log.e(TAG, "Location settings are not satisfied, but can not be fixed.");
+                            break;
+                    }
+                }
+            });
+
+            return task;
         } else {
             Log.e(TAG, "Provided context " + ctx.toString() + " has not the needed user permissions.");
         }
 
-        if (cachedLastLocation != null) {
-            l.onLocationChanged(cachedLastLocation);
-        }
-
-        return hasPermission;
+        return null;
     }
 
     public boolean removeListener(LocationListener l) {
@@ -68,7 +115,8 @@ public class UserLocationService implements LocationListener {
         for (LocationListener l : listenerList) {
             l.onLocationChanged(location);
         }
-        cachedLastLocation = location;
+
+        UserLocationService.cachedLocation = location;
     }
 
     /**
@@ -101,5 +149,18 @@ public class UserLocationService implements LocationListener {
         return true;
     }
 
-    public static Location getCachedLocation() { return cachedLastLocation; }
+    private Task<LocationSettingsResponse> checkLocationSettings(Context ctx) {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        // Check settings
+        SettingsClient client = LocationServices.getSettingsClient(ctx);
+        return client.checkLocationSettings(builder.build());
+    }
+
+    public static Location getCachedLocation() { return UserLocationService.cachedLocation; }
 }

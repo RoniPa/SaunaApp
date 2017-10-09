@@ -1,11 +1,11 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -16,9 +16,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.appinvite.AppInvite;
 import com.google.android.gms.appinvite.AppInviteInvitation;
@@ -26,9 +23,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,12 +39,13 @@ import java.util.List;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
+import fi.jamk.saunaapp.services.UserLocationService;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
-import tofira.imagepicker.PickerBuilder;
 
 public class MainActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
+        LocationListener,
         ChildConnectionNotifier {
     private static final String TAG = "MainActivity";
 
@@ -57,6 +58,7 @@ public class MainActivity extends BaseActivity implements
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private UserLocationService mUserLocationService;
 
     private String mUsername;
     private String mPhotoUrl;
@@ -112,6 +114,8 @@ public class MainActivity extends BaseActivity implements
                 .addApi(LocationServices.API)
                 .addApi(AppInvite.API)
                 .build();
+
+        mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
 
         fetchConfig()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -261,6 +265,17 @@ public class MainActivity extends BaseActivity implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, childConnectionListeners.size() +" registered connection listeners");
+
+        Task<LocationSettingsResponse> updatesTask = mUserLocationService.requestLocationUpdates(MainActivity.this, this);
+        if (updatesTask == null) {
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    BaseActivity.REQUEST_LOCATION);
+        }
+
         for (GoogleApiClient.ConnectionCallbacks listener : childConnectionListeners) {
             listener.onConnected(bundle);
         }
@@ -271,12 +286,24 @@ public class MainActivity extends BaseActivity implements
         for (GoogleApiClient.ConnectionCallbacks listener : childConnectionListeners) {
             listener.onConnectionSuspended(i);
         }
+        mUserLocationService.removeListener(this);
         Log.d(TAG, "GoogleApi connection suspended: "+i);
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d(TAG, "OnLocationChanged with location " + location.toString());
+        if (mapFragment != null) {
+            mapFragment.onLocationChanged(location);
+        }
+        if (listFragment != null) {
+            listFragment.onLocationChanged(location);
+        }
     }
 
     /**

@@ -143,15 +143,6 @@ public class SaunaListFragment extends Fragment implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    new String[]{
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    BaseActivity.REQUEST_LOCATION);
-        }
-
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>(
                 Sauna.class,
                 R.layout.sauna_item,

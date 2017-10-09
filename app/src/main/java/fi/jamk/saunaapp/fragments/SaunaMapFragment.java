@@ -49,7 +49,7 @@ import fi.jamk.saunaapp.util.ChildConnectionNotifier;
  */
 public class SaunaMapFragment extends Fragment implements
         OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
-        GoogleApiClient.ConnectionCallbacks, LocationListener {
+        LocationListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -57,8 +57,6 @@ public class SaunaMapFragment extends Fragment implements
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String TAG = "SaunaMapFragment";
     private static final float MAP_ZOOM = 12.0f;
-
-    private UserLocationService mUserLocationService;
 
     private HashMap<String, Marker> markers;
     private HashMap<Marker, Sauna> reverseMarkers;
@@ -102,8 +100,6 @@ public class SaunaMapFragment extends Fragment implements
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sauna_map, container, false);
 
-        ((ChildConnectionNotifier)getActivity()).addConnectionListener(this);
-
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         mFirebaseListener = getFirebaseListener();
         markers = new HashMap<>();
@@ -121,10 +117,6 @@ public class SaunaMapFragment extends Fragment implements
         mAdView = (AdView) rootView.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
-
-        mUserLocationService = UserLocationService.newInstance(
-                ((ChildConnectionNotifier)getActivity())
-                        .getApiClient());
 
         return rootView;
     }
@@ -179,7 +171,6 @@ public class SaunaMapFragment extends Fragment implements
             mFirebaseListener = null;
         }
 
-        ((ChildConnectionNotifier)getActivity()).removeConnectionListener(this);
         saunaMapView.onDestroy();
         super.onDestroy();
     }
@@ -192,10 +183,10 @@ public class SaunaMapFragment extends Fragment implements
     }
 
     /**
-     * Location listener. Sets the current location
-     * to Google Map.
+     * Location change action.
+     * Sets the current location to {@link GoogleMap}.
      *
-     * @param location
+     * @param location {@link Location}
      */
     @Override
     public void onLocationChanged(Location location) {
@@ -254,39 +245,6 @@ public class SaunaMapFragment extends Fragment implements
     }
 
     /**
-     * Callback for location permission request, in case
-     * permissions had not been granted.
-     *
-     * @param requestCode
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == BaseActivity.REQUEST_LOCATION) {
-            // Close activity if permissions were not granted on runtime.
-            if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
-                getActivity().finish();
-            }
-        }
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (!mUserLocationService.requestLocationUpdates(getContext(), this)) {
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    new String[]{
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    BaseActivity.REQUEST_LOCATION);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mUserLocationService.removeListener(this);
-    }
-
-    /**
      * Launch {@link SaunaDetailsActivity} for {@link Sauna}
      * @param sauna {@link Sauna} to display
      */
@@ -306,9 +264,11 @@ public class SaunaMapFragment extends Fragment implements
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Sauna sauna = dataSnapshot.getValue(Sauna.class);
-                Marker marker = map.addMarker(new MarkerOptions().position(
-                        new LatLng(sauna.getLatitude(), sauna.getLongitude())
-                ).title(sauna.getName()));
+                Marker marker = map.addMarker(
+                    new MarkerOptions()
+                        .position(new LatLng(sauna.getLatitude(), sauna.getLongitude()))
+                        .title(sauna.getName())
+                    );
 
                 markers.put(sauna.getId(), marker);
                 reverseMarkers.put(marker, sauna);
