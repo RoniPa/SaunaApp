@@ -38,7 +38,7 @@ public abstract class PickerManager {
     private UCrop uCrop;
     protected PickerBuilder.onImageReceivedListener imageReceivedListener;
     protected PickerBuilder.onPermissionRefusedListener permissionRefusedListener;
-    private int cropActivityColor = Color.parseColor("#4c8e20");
+    private int cropActivityColor = Color.parseColor("#3d8f7b");
     public PickerManager setOnImageReceivedListener(PickerBuilder.onImageReceivedListener listener) {
         this.imageReceivedListener = listener;
         return this;
