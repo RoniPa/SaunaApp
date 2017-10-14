@@ -18,22 +18,48 @@ package fi.jamk.saunaapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.Locale;
 
 public class Sauna implements Parcelable {
+    /**
+     * Rating count cap
+     */
+    public static final int MAX_RATING_COUNT = 500;
 
     private String id;
     private String description;
     private String name;
     private String photoPath;
     private String owner;
+
+    private double rating;
+    /**
+     * We use this value to count the effectiveness
+     * of any new ratings given to the sauna
+     */
+    private int ratingCount;
+
     private double latitude;
     private double longitude;
 
-    public Sauna() {}
+    public Sauna() {
+        this.rating = 0;
+        this.ratingCount = 0;
+    }
 
-    public Sauna(String description, String name, String photoPath, String owner, double latitude, double longitude, @Nullable String id) {
+    public Sauna(
+            String description,
+            String name,
+            String photoPath,
+            String owner,
+            double latitude,
+            double longitude,
+            double rating,
+            int ratingCount,
+            @Nullable String id
+    ) {
         if (id != null) {
             this.id = id;
         }
@@ -43,6 +69,8 @@ public class Sauna implements Parcelable {
         this.owner = owner;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.rating = rating;
+        this.ratingCount = ratingCount;
     }
 
     public String getId() { return id; }
@@ -76,6 +104,19 @@ public class Sauna implements Parcelable {
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
+    public double getRating() { return rating; }
+    public void setRating(double rating) { this.rating = rating; }
+
+    public int getRatingCount() { return ratingCount; }
+    public void setRatingCount(int ratingCount) {
+        if (ratingCount <= Sauna.MAX_RATING_COUNT) {
+            this.ratingCount = ratingCount;
+        } else {
+            Log.d("SaunaModel", "ratingCount value over maximum value, set value as MAX_RATING_COUNT");
+            this.ratingCount = Sauna.MAX_RATING_COUNT;
+        }
+    }
+
     @Override
     public String toString() {
         String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoPath: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
@@ -88,7 +129,9 @@ public class Sauna implements Parcelable {
                 this.photoPath == null ? "NULL" : this.photoPath,
                 this.owner == null ? "NULL" : this.owner,
                 this.latitude,
-                this.longitude
+                this.longitude,
+                this.rating,
+                this.ratingCount
         );
     }
 
@@ -109,6 +152,8 @@ public class Sauna implements Parcelable {
         dest.writeString(owner);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
+        dest.writeDouble(rating);
+        dest.writeInt(ratingCount);
         dest.writeString(id);
     }
 
@@ -129,6 +174,8 @@ public class Sauna implements Parcelable {
         this.owner = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
+        this.rating = in.readDouble();
+        this.ratingCount = in.readInt();
         this.id = in.readString();
     }
 }
