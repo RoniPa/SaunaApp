@@ -37,12 +37,12 @@ public class Rating implements Parcelable {
     }
 
     public Rating(
-            String saunaId,
-            String message,
-            double rating,
-            Date time,
-            String user,
-            @Nullable String id
+        String saunaId,
+        String message,
+        double rating,
+        Date time,
+        String user,
+        @Nullable String id
     ) {
         if (id != null) {
             this.id = id;

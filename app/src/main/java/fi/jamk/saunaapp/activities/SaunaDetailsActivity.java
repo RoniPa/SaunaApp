@@ -1,6 +1,7 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,10 +17,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.fragments.RateSaunaFragment;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.models.Sauna;
 
-public class SaunaDetailsActivity extends BaseActivity {
+public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragment.OnFragmentInteractionListener {
     private final static String TAG = "SaunaDetailsActivity";
 
     private FirebaseStorage mFirebaseStorage;
@@ -69,5 +71,10 @@ public class SaunaDetailsActivity extends BaseActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

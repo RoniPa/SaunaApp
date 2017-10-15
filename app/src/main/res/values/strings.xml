@@ -5,10 +5,14 @@
     <string name="action_settings">Fresh Settings</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
+    <string name="action_back">Back</string>
+    <string name="action_next">Next</string>
+    <string name="action_send">Send</string>
     <string name="action_invite">Invite Friends</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_login">Sign in</string>
     <string name="toast_unexpected_error">Unexpected error</string>
+    <string name="citation">- %s</string>
 
     <!-- Invitation strings -->
     <string name="invitation_title">Welcome to SaunaApp!</string>
@@ -43,4 +47,8 @@
 
     <!-- Strings related to MapActivity -->
     <string name="title_activity_maps">Map</string>
+
+    <!-- Rate sauna strings -->
+    <string name="rate_sauna_header">Have you saunoad here?</string>
+    <string name="rate_sauna_hint">Write a short review</string>
 </resources>
