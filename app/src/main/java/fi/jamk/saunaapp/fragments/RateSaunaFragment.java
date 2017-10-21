@@ -8,16 +8,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RatingBar;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Date;
 
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Rating;
@@ -35,6 +38,7 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
 
     private FirebaseUser mUser;
     private OnFragmentInteractionListener mListener;
+    private TextWatcher reviewMessageWatcher;
 
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
@@ -43,6 +47,7 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
     private Button actionButtonCancel;
 
     private float rating;
+    private String reviewMessage;
 
     public RateSaunaFragment() {}
 
@@ -69,14 +74,20 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Reference to self for listeners
-        final RateSaunaFragment _this = this;
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_rate_sauna, container, false);
 
+        reviewMessageWatcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                reviewMessage = charSequence.toString();
+            }
+            @Override public void afterTextChanged(Editable editable) {}
+        };
+
         mPager = view.findViewById(R.id.pager);
-        mPagerAdapter = new RatingSlidePagerAdapter(getChildFragmentManager(), this);
+        mPagerAdapter = new RatingSlidePagerAdapter(getChildFragmentManager(), this, reviewMessageWatcher);
         mPager.setAdapter(mPagerAdapter);
 
         actionButtonContinue = (Button) view.findViewById(R.id.rate_action_button);
@@ -127,23 +138,41 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Rating rating);
+    }
+
+    /**
+     * Puts new review to the database,
+     * mark user to have given review for this sauna
+     */
+    private Rating createRating() {
+
+        Rating rating = new Rating();
+        rating.setRating(this.rating);
+        rating.setTime(new Date());
+        rating.setUser(mUser.getUid());
+        rating.setMessage(this.reviewMessage);
+
+        return rating;
     }
 
     private class RatingSlidePagerAdapter extends FragmentStatePagerAdapter {
         static final int PAGE_COUNT = 2;
-        RatingBar.OnRatingBarChangeListener mListener;
 
-        RatingSlidePagerAdapter(FragmentManager fm, RatingBar.OnRatingBarChangeListener l) {
+        RatingBar.OnRatingBarChangeListener mBarListener;
+        TextWatcher mTextListener;
+
+        RatingSlidePagerAdapter(FragmentManager fm, RatingBar.OnRatingBarChangeListener l1, TextWatcher l2) {
             super(fm);
-            mListener = l;
+            mBarListener = l1;
+            mTextListener = l2;
         }
 
         @Override
         public Fragment getItem(int position) {
             switch(position) {
-                case 0: return RateSaunaFragmentTab1.newInstance(mListener);
-                case 1: return RateSaunaFragmentTab2.newInstance();
+                case 0: return RateSaunaFragmentTab1.newInstance(mBarListener);
+                case 1: return RateSaunaFragmentTab2.newInstance(mTextListener);
                 default: return null;
             }
         }
@@ -162,7 +191,8 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
         public void onClick(View view) {
             // Last phase, send review
             if (mPager.getCurrentItem() == RatingSlidePagerAdapter.PAGE_COUNT - 1) {
-                Toast.makeText(getContext(), "Saving rating not yet implemented", Toast.LENGTH_LONG).show();
+                // Todo: move to 'disabled' state, where user rating is shown
+                mListener.onFragmentInteraction(createRating());
                 return;
             }
 
@@ -171,7 +201,7 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
 
             mPager.setCurrentItem(mPager.getCurrentItem() + 1);
 
-            // We are on the last tab
+            // We are on the "send" tab
             if (mPager.getCurrentItem() >= RatingSlidePagerAdapter.PAGE_COUNT - 1) {
                 actionButtonContinue.setText(R.string.action_send);
             }

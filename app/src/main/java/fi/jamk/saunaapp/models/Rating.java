@@ -84,7 +84,7 @@ public class Rating implements Parcelable {
 
     @Override
     public String toString() {
-        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoPath: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
+        String outputFormat = "Sauna: {\n\tid: %s\n\tmessage: %s\n\tsaunaId: %s\n\trating: %f\n\ttime: %s\n\tuser: %s\n}";
         return String.format(
                 Locale.ENGLISH,
                 outputFormat,

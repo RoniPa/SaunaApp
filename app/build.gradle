@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 ext.PLAY_SERVICES_VERSION='11.4.0'
 ext.FIREBASE_VERSION='11.4.0'
+ext.FIRESTORE_VERSION='0.25.0-beta'
 ext.FIREBASE_UI_VERSION='2.4.0'
 
 android {
@@ -56,6 +57,8 @@ dependencies {
     compile "com.google.firebase:firebase-messaging:$FIREBASE_VERSION"
     compile "com.google.firebase:firebase-config:$FIREBASE_VERSION"
     compile "com.google.firebase:firebase-crash:$FIREBASE_VERSION"
+
+//    compile "com.google.cloud:google-cloud-firestore:$FIRESTORE_VERSION"
 
     compile "com.firebaseui:firebase-ui-database:$FIREBASE_UI_VERSION"
     compile "com.firebaseui:firebase-ui-storage:$FIREBASE_UI_VERSION"

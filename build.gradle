@@ -11,6 +11,11 @@ buildscript {
 }
 
 allprojects {
+//    Version conflict with Firestore
+//    configurations.all {
+//        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.0'
+//    }
+
     repositories {
         jcenter()
         maven { url "https://jitpack.io" }

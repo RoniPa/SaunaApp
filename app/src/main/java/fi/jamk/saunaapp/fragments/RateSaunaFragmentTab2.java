@@ -3,9 +3,11 @@ package fi.jamk.saunaapp.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,6 +23,7 @@ import fi.jamk.saunaapp.R;
 public class RateSaunaFragmentTab2 extends Fragment {
 
     private FirebaseUser mUser;
+    private TextWatcher mListener;
 
     public RateSaunaFragmentTab2() {}
 
@@ -30,8 +33,9 @@ public class RateSaunaFragmentTab2 extends Fragment {
      *
      * @return A new instance of fragment RateSaunaFragment.
      */
-    public static RateSaunaFragmentTab2 newInstance() {
+    public static RateSaunaFragmentTab2 newInstance(TextWatcher l) {
         RateSaunaFragmentTab2 fragment = new RateSaunaFragmentTab2();
+        fragment.setListener(l);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -53,16 +57,21 @@ public class RateSaunaFragmentTab2 extends Fragment {
         TextView nameTextView = view.findViewById(R.id.sauna_name_text_view);
         nameTextView.setText(mUser.getDisplayName());
 
+        EditText reviewEditText = view.findViewById(R.id.review_edit);
+        reviewEditText.addTextChangedListener(mListener);
+
         return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
+    public void onAttach(Context context) { super.onAttach(context); }
 
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void setListener(TextWatcher listener) {
+        mListener = listener;
     }
 }
