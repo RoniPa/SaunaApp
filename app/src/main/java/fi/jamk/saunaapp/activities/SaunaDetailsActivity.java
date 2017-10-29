@@ -2,12 +2,15 @@ package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -80,6 +83,15 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
                     .using(new FirebaseImageLoader())
                     .load(imageRef)
                     .into(mToolbarBackground);
+
+            // Get view height from screen width
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int width = displaymetrics.widthPixels;
+
+            // Square dimensions should have been forced for thumb pic,
+            // so we can assume the height to match width
+            mToolbarBackground.setLayoutParams(new CollapsingToolbarLayout.LayoutParams(width, width));
         }
 
         detailsTextView = (TextView) findViewById(R.id.details_text);
