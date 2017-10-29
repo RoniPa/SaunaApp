@@ -88,7 +88,6 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
 
         mPager = view.findViewById(R.id.pager);
         mPagerAdapter = new RatingSlidePagerAdapter(getChildFragmentManager(), this, reviewMessageWatcher);
-        mPager.setAdapter(mPagerAdapter);
 
         actionButtonContinue = (Button) view.findViewById(R.id.rate_action_button);
         actionButtonContinue.setText(R.string.action_next);
@@ -128,6 +127,44 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
     }
 
     /**
+     * Set value of hasRated.
+     * Also if true, move to last page (display rating) and
+     * hide action buttons.
+     *
+     * @param hasRated
+     */
+    public void setHasRated(boolean hasRated) {
+        // Hack to prevent animation on page view initialization
+        mPager.setAdapter(mPagerAdapter);
+        // Finalize actions
+        if (hasRated) {
+            mPager.setCurrentItem(RatingSlidePagerAdapter.PAGE_COUNT - 1);
+            actionButtonCancel.setVisibility(View.GONE);
+            actionButtonContinue.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Set values from given Rating object.
+     *
+     * @param rating      Rating object
+     */
+    public void setRating(Rating rating) {
+        if (rating == null) {
+            return;
+        }
+
+        this.rating = (float)rating.getRating();
+        this.reviewMessage = rating.getMessage();
+
+        RatingChildFragment frag =
+                ((RatingSlidePagerAdapter)mPager.getAdapter())
+                        .getCurrentFragment();
+
+        frag.onParentRatingChanged(rating);
+    }
+
+    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -157,7 +194,9 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
     }
 
     private class RatingSlidePagerAdapter extends FragmentStatePagerAdapter {
-        static final int PAGE_COUNT = 2;
+        static final int PAGE_COUNT = 3;
+
+        private RateSaunaFragment.RatingChildFragment mCurrentFragment;
 
         RatingBar.OnRatingBarChangeListener mBarListener;
         TextWatcher mTextListener;
@@ -171,16 +210,21 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
         @Override
         public Fragment getItem(int position) {
             switch(position) {
-                case 0: return RateSaunaFragmentTab1.newInstance(mBarListener);
-                case 1: return RateSaunaFragmentTab2.newInstance(mTextListener);
+                case 0: this.mCurrentFragment = RateSaunaFragmentTab1.newInstance(mBarListener); break;
+                case 1: this.mCurrentFragment = RateSaunaFragmentTab2.newInstance(mTextListener); break;
+                case 2: this.mCurrentFragment = RateSaunaFragmentTab3.newInstance(createRating()); break;
                 default: return null;
             }
+
+            return this.mCurrentFragment;
         }
 
         @Override
         public int getCount() {
             return PAGE_COUNT;
         }
+
+        public RateSaunaFragment.RatingChildFragment getCurrentFragment() { return mCurrentFragment; }
     }
 
     /**
@@ -189,10 +233,12 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
     private class NextOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            final int sendPageIndex = 1;
+
             // Last phase, send review
-            if (mPager.getCurrentItem() == RatingSlidePagerAdapter.PAGE_COUNT - 1) {
-                // Todo: move to 'disabled' state, where user rating is shown
+            if (mPager.getCurrentItem() == sendPageIndex) {
                 mListener.onFragmentInteraction(createRating());
+                setHasRated(true);
                 return;
             }
 
@@ -222,5 +268,9 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
                 actionButtonCancel.setEnabled(false);
             }
         }
+    }
+
+    public static abstract class RatingChildFragment extends Fragment {
+        abstract void onParentRatingChanged(Rating rating);
     }
 }

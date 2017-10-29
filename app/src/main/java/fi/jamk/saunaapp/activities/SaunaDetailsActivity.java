@@ -9,16 +9,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -26,11 +21,13 @@ import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.RateSaunaFragment;
 import fi.jamk.saunaapp.models.Rating;
 import fi.jamk.saunaapp.models.Sauna;
+import fi.jamk.saunaapp.services.RatingService;
 
 public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragment.OnFragmentInteractionListener {
     private final static String TAG = "SaunaDetailsActivity";
 
     private FirebaseStorage mFirebaseStorage;
+    private RatingService ratingService;
 
     private Sauna sauna;
     private TextView detailsTextView;
@@ -53,6 +50,25 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         Intent intent = getIntent();
         sauna = intent.getParcelableExtra(DETAILS_SAUNA);
         setTitle(sauna.getName());
+
+        ((RatingBar)findViewById(R.id.sauna_rating_bar)).setRating((float)sauna.getRating());
+
+        int rCount = sauna.getRatingCount();
+        String txt = rCount > 499 ? "499+" : ""+rCount;
+        ((TextView)findViewById(R.id.rating_count_text_view)).setText(getString(R.string.rating_count, txt));
+
+        // Check if user has rated sauna.
+        ratingService = RatingService.newInstance();
+        ratingService.hasRated(sauna.getId())
+            .subscribe(hasRated -> {
+                RateSaunaFragment frag = (RateSaunaFragment)getSupportFragmentManager().findFragmentById(R.id.rateSaunaFragment);
+
+                // Get rating for Fragment
+                ratingService.getRating(sauna.getId()).subscribe(frag::setRating);
+                // Disable rating if user has already rated sauna
+                frag.setHasRated(hasRated);
+
+            }, Throwable::printStackTrace);
 
         mFirebaseStorage = FirebaseStorage.getInstance();
         mToolbarBackground = findViewById(R.id.details_toolbar_background);
@@ -79,45 +95,14 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         });
     }
 
+    /**
+     * Save rating.
+     *
+     * @param rating
+     */
     @Override
     public void onFragmentInteraction(final Rating rating) {
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference mMetaReference = db.getReference("_hasRated/" + rating.getUser());
-        DatabaseReference mReviewReference = db.getReference("ratings");
-
-        rating.setId(mReviewReference.push().getKey());
         rating.setSaunaId(sauna.getId());
-
-        // Save knowledge that this user has rated this sauna already.
-        // Stored as { userId { saunaId => ratingId } }
-        mMetaReference.child(sauna.getId()).setValue(rating.getId());
-        mReviewReference.child(rating.getId()).setValue(rating);
-
-        // Calculate & update rating for sauna
-        DatabaseReference mSaunaReference = db.getReference("saunas/" + sauna.getId());
-        mSaunaReference.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                Sauna s = mutableData.getValue(Sauna.class);
-                if (s == null) {
-                    return Transaction.success(mutableData);
-                }
-
-                s.setRatingCount(s.getRatingCount() + 1);
-                double ratingDelta = rating.getRating() - s.getRating();
-                s.setRating(s.getRating() + (ratingDelta / s.getRatingCount()));
-
-                // Set value and report transaction success
-                mutableData.setValue(s);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
-            }
-        });
+        ratingService.saveRating(rating);
     }
 }

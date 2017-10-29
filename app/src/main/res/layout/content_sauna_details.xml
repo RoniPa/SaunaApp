@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <RatingBar
+                android:id="@+id/sauna_rating_bar"
                 android:numStars="5"
                 android:isIndicator="true"
                 android:layout_gravity="center_vertical"
@@ -30,11 +31,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
+                android:id="@+id/rating_count_text_view"
                 android:layout_marginStart="16dp"
                 android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(XXX reviews)"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <!-- Content layout to add paddings -->

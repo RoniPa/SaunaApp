@@ -13,16 +13,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.models.Rating;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link RateSaunaFragmentTab1#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RateSaunaFragmentTab1 extends Fragment {
+public class RateSaunaFragmentTab1 extends RateSaunaFragment.RatingChildFragment {
 
     private FirebaseUser mUser;
     private RatingBar.OnRatingBarChangeListener mRatingListener;
+
+    private RatingBar bar;
 
     public RateSaunaFragmentTab1() {}
 
@@ -56,7 +59,7 @@ public class RateSaunaFragmentTab1 extends Fragment {
         TextView nameTextView = view.findViewById(R.id.sauna_name_text_view);
         nameTextView.setText(mUser.getDisplayName());
 
-        RatingBar bar = view.findViewById(R.id.rating_bar);
+        bar = view.findViewById(R.id.rating_bar);
         bar.setOnRatingBarChangeListener(mRatingListener);
 
         return view;
@@ -74,5 +77,10 @@ public class RateSaunaFragmentTab1 extends Fragment {
 
     public void setRatingListener(RatingBar.OnRatingBarChangeListener l) {
         mRatingListener = l;
+    }
+
+    @Override
+    void onParentRatingChanged(Rating rating) {
+        bar.setRating((float)rating.getRating());
     }
 }

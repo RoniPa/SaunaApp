@@ -3,12 +3,10 @@ package fi.jamk.saunaapp.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.RatingBar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -18,17 +16,16 @@ import fi.jamk.saunaapp.models.Rating;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link RateSaunaFragmentTab2#newInstance} factory method to
+ * Use the {@link RateSaunaFragmentTab3#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RateSaunaFragmentTab2 extends RateSaunaFragment.RatingChildFragment {
+public class RateSaunaFragmentTab3 extends RateSaunaFragment.RatingChildFragment {
 
     private FirebaseUser mUser;
-    private TextWatcher mListener;
+    private Rating rating;
+    private RatingBar mBar;
 
-    private EditText reviewEditText;
-
-    public RateSaunaFragmentTab2() {}
+    public RateSaunaFragmentTab3() {}
 
     /**
      * Use this factory method to create a new instance of
@@ -36,9 +33,9 @@ public class RateSaunaFragmentTab2 extends RateSaunaFragment.RatingChildFragment
      *
      * @return A new instance of fragment RateSaunaFragment.
      */
-    public static RateSaunaFragmentTab2 newInstance(TextWatcher l) {
-        RateSaunaFragmentTab2 fragment = new RateSaunaFragmentTab2();
-        fragment.setListener(l);
+    public static RateSaunaFragmentTab3 newInstance(Rating rating) {
+        RateSaunaFragmentTab3 fragment = new RateSaunaFragmentTab3();
+        fragment.setRating(rating);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -55,13 +52,10 @@ public class RateSaunaFragmentTab2 extends RateSaunaFragment.RatingChildFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_rate_sauna_tab2, container, false);
+        View view = inflater.inflate(R.layout.fragment_rate_sauna_tab3, container, false);
 
-        TextView nameTextView = view.findViewById(R.id.sauna_name_text_view);
-        nameTextView.setText(mUser.getDisplayName());
-
-        reviewEditText = view.findViewById(R.id.review_edit);
-        reviewEditText.addTextChangedListener(mListener);
+        this.mBar = view.findViewById(R.id.rating_bar);
+        this.mBar.setRating((float)rating.getRating());
 
         return view;
     }
@@ -74,12 +68,11 @@ public class RateSaunaFragmentTab2 extends RateSaunaFragment.RatingChildFragment
         super.onDetach();
     }
 
-    public void setListener(TextWatcher listener) {
-        mListener = listener;
-    }
+    public void setRating(Rating rating) { this.rating = rating; }
 
     @Override
     void onParentRatingChanged(Rating rating) {
-        this.reviewEditText.setText(rating.getMessage());
+        this.rating = rating;
+        this.mBar.setRating((float)this.rating.getRating());
     }
 }
