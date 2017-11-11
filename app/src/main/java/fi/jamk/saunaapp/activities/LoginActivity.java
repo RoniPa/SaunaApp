@@ -21,6 +21,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import fi.jamk.saunaapp.R;
 
@@ -121,6 +123,7 @@ public class LoginActivity extends BaseActivity implements
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            registerDeviceToken(task);
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
                         }
@@ -134,6 +137,15 @@ public class LoginActivity extends BaseActivity implements
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void registerDeviceToken(Task<AuthResult> task) {
+        FirebaseDatabase.getInstance().getReference(
+                "users/" +
+                task.getResult().getUser().getUid() +
+                "/notificationTokens/" +
+                FirebaseInstanceId.getInstance().getToken()
+        ).setValue(true);
     }
 }
 
