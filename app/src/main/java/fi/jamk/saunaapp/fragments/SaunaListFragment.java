@@ -63,7 +63,6 @@ public class SaunaListFragment extends Fragment implements
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>
             mFirebaseAdapter;
-    private AdView mAdView;
     private RecyclerView mSaunaRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
 
@@ -106,18 +105,11 @@ public class SaunaListFragment extends Fragment implements
         mLinearLayoutManager = new LinearLayoutManager(getContext());
         mLinearLayoutManager.setStackFromEnd(true);
 
-        mAdView = (AdView) rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
         return rootView;
     }
 
     @Override
     public void onPause() {
-        if (mAdView != null) {
-            mAdView.pause();
-        }
         super.onPause();
     }
 
@@ -125,17 +117,11 @@ public class SaunaListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdView != null) {
-            mAdView.resume();
-        }
     }
 
     /** Called before the activity is destroyed */
     @Override
     public void onDestroy() {
-        if (mAdView != null) {
-            mAdView.destroy();
-        }
         mUserLocationService.removeListener(this);
         ((ChildConnectionNotifier)getActivity()).removeConnectionListener(this);
         super.onDestroy();

@@ -1,6 +1,7 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,8 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.appinvite.AppInvite;
-import com.google.android.gms.appinvite.AppInviteInvitation;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.auth.api.Auth;
@@ -39,6 +40,7 @@ import java.util.List;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.SaunaListFragment;
 import fi.jamk.saunaapp.fragments.SaunaMapFragment;
+import fi.jamk.saunaapp.fragments.UserProfileFragment;
 import fi.jamk.saunaapp.services.UserLocationService;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 
@@ -63,11 +65,14 @@ public class MainActivity extends BaseActivity implements
     private String mUsername;
     private String mPhotoUrl;
 
+    private AdView mAdView;
+
     private FragmentManager.OnBackStackChangedListener mBackStackListener;
 
     // Tab page fragments
     SaunaMapFragment mapFragment;
     SaunaListFragment listFragment;
+    UserProfileFragment profileFragment;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -90,6 +95,10 @@ public class MainActivity extends BaseActivity implements
 
         setContentView(R.layout.activity_main);
 
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         childConnectionListeners = new ArrayList<>();
 
         // Initialize Firebase Auth
@@ -108,34 +117,33 @@ public class MainActivity extends BaseActivity implements
         }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addConnectionCallbacks(this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .addApi(LocationServices.API)
-                .addApi(AppInvite.API)
-                .build();
+            .enableAutoManage(this, this)
+            .addConnectionCallbacks(this)
+            .addApi(Auth.GOOGLE_SIGN_IN_API)
+            .addApi(LocationServices.API)
+            .build();
 
         mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
 
         fetchConfig()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Make the fetched config available via
-                        // FirebaseRemoteConfig get<type> calls.
-                        mFirebaseRemoteConfig.activateFetched();
-                        applyRetrievedLengthLimit();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // There has been an error fetching the config
-                        Log.w(TAG, "Error fetching config: " +
-                                e.getMessage());
-                        applyRetrievedLengthLimit();
-                    }
-                });
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // Make the fetched config available via
+                    // FirebaseRemoteConfig get<type> calls.
+                    mFirebaseRemoteConfig.activateFetched();
+                    applyRetrievedLengthLimit();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // There has been an error fetching the config
+                    Log.w(TAG, "Error fetching config: " +
+                            e.getMessage());
+                    applyRetrievedLengthLimit();
+                }
+            });
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -150,13 +158,27 @@ public class MainActivity extends BaseActivity implements
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // We have 3 tabs, maintain all off view tabs
+        mViewPager.setOffscreenPageLimit(2);
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) {
+                tab.setIcon(mSectionsPagerAdapter.getPageIcon(i));
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (mAdView != null) {
+            mAdView.resume();
+        }
     }
 
     @Override
@@ -170,11 +192,25 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (mAdView != null) {
+            mAdView.pause();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         if (mBackStackListener != null) {
             getSupportFragmentManager().removeOnBackStackChangedListener(mBackStackListener);
             mBackStackListener = null;
         }
+
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+
         mGoogleApiClient = null;
         super.onDestroy();
     }
@@ -195,9 +231,6 @@ public class MainActivity extends BaseActivity implements
         switch (itemId) {
             case R.id.profile_menu:
                 startActivity(new Intent(this, UserProfileActivity.class));
-                return true;
-            case R.id.invite_menu:
-                sendInvitation();
                 return true;
             case R.id.action_settings:
                 fetchConfig();
@@ -220,28 +253,7 @@ public class MainActivity extends BaseActivity implements
         Log.d(TAG, "onActivityResult: requestCode=" + requestCode +
                 ", resultCode=" + resultCode);
 
-        if (requestCode == REQUEST_INVITE) {
-            if (resultCode == RESULT_OK) {
-                Bundle payload = new Bundle();
-                payload.putString(FirebaseAnalytics.Param.VALUE, "sent");
-                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,
-                        payload);
-                // Check how many invitations were sent.
-                String[] ids = AppInviteInvitation
-                        .getInvitationIds(resultCode, data);
-                Log.d(TAG, "Invitations sent: " + ids.length);
-            } else {
-                Bundle payload = new Bundle();
-                payload.putString(FirebaseAnalytics.Param.VALUE, "not sent");
-                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,
-                        payload);
-                // Sending failed or it was canceled,
-                // show failure message to the user
-                Log.d(TAG, "Failed to send invitation.");
-            }
-        }
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
     }
 
     /**
@@ -252,14 +264,6 @@ public class MainActivity extends BaseActivity implements
     private void applyRetrievedLengthLimit() {
         Long friendly_msg_length =
                 mFirebaseRemoteConfig.getLong("friendly_msg_length");
-    }
-
-    private void sendInvitation() {
-        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
-                .setMessage(getString(R.string.invitation_message))
-                .setCallToActionText(getString(R.string.invitation_cta))
-                .build();
-        startActivityForResult(intent, REQUEST_INVITE);
     }
 
     @Override
@@ -328,15 +332,14 @@ public class MainActivity extends BaseActivity implements
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if (listFragment == null) {
-                        listFragment = SaunaListFragment.newInstance(position + 1);
-                    }
+                    listFragment = SaunaListFragment.newInstance(position + 1);
                     return listFragment;
                 case 1:
-                    if (mapFragment == null) {
-                        mapFragment = SaunaMapFragment.newInstance(position + 1);
-                    }
+                    mapFragment = SaunaMapFragment.newInstance(position + 1);
                     return mapFragment;
+                case 2:
+                    profileFragment = UserProfileFragment.newInstance(position + 1);
+                    return profileFragment;
                 default:
                     throw new IllegalArgumentException("Page at position "+position+" not found.");
             }
@@ -344,16 +347,28 @@ public class MainActivity extends BaseActivity implements
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "LIST";
                 case 1:
-                    return "MAP";
+                case 2:
+                default:
+                    return null;
+            }
+        }
+
+        public Drawable getPageIcon(int position) {
+            switch (position) {
+                case 0:
+                    return getResources().getDrawable(R.drawable.ic_view_list_white_24dp, null);
+                case 1:
+                    return getResources().getDrawable(R.drawable.ic_map_white_24dp, null);
+                case 2:
+                    return getResources().getDrawable(R.drawable.ic_person_white_24dp, null);
                 default:
                     return null;
             }

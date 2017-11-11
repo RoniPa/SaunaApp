@@ -2,22 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!-- <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar" /> -->
 
     <ScrollView
         android:background="@color/colorPrimary12op"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        <android.support.v7.widget.RecyclerView
-            android:clipToPadding="false"
-            android:paddingTop="16dp"
-            android:id="@+id/saunaRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hello from profile fragment" />
+        </LinearLayout>
     </ScrollView>
 </LinearLayout>

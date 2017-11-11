@@ -66,7 +66,6 @@ public class SaunaMapFragment extends Fragment implements
     private DatabaseReference mFirebaseDatabaseReference;
     private ChildEventListener mFirebaseListener;
 
-    private AdView mAdView;
     private GoogleMap map;
     private MapView saunaMapView;
 
@@ -116,10 +115,6 @@ public class SaunaMapFragment extends Fragment implements
         mFirebaseDatabaseReference.child(BaseActivity.SAUNAS_CHILD)
                 .addChildEventListener(mFirebaseListener);
 
-        mAdView = (AdView) rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
         return rootView;
     }
 
@@ -135,9 +130,6 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onPause() {
-        if (mAdView != null) {
-            mAdView.pause();
-        }
         saunaMapView.onPause();
         super.onPause();
     }
@@ -145,9 +137,6 @@ public class SaunaMapFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdView != null) {
-            mAdView.resume();
-        }
         saunaMapView.onResume();
     }
 
@@ -165,9 +154,6 @@ public class SaunaMapFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
-        if (mAdView != null) {
-            mAdView.destroy();
-        }
         if (mFirebaseListener != null) {
             mFirebaseDatabaseReference.removeEventListener(mFirebaseListener);
             mFirebaseListener = null;
