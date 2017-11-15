@@ -1,6 +1,8 @@
 package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -57,8 +59,8 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_main_profile, container, false);
-
+        ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main_profile, container, false);
+        View rootView = binding.getRoot();
         return rootView;
     }
 
