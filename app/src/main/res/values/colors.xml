@@ -10,4 +10,5 @@
     <color name="color37opBlack">#37000000</color>
     <color name="color87opBlack">#87000000</color>
     <color name="color87opWhite">#87FFFFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>

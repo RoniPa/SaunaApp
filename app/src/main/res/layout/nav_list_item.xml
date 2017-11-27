@@ -4,8 +4,11 @@
         <variable name="title" type="java.lang.String"/>
     </data>
     <RelativeLayout
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="horizontal"
-        android:background="@drawable/border_bottom"
+        android:background="@drawable/white_and_border_bottom"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_vertical_margin"

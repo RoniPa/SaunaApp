@@ -27,6 +27,7 @@ public class Message implements Parcelable {
     private String id;
     private String text;
     private String sender;
+    private String senderName;
     private String target;
     private String saunaId;
     private Date date;
@@ -39,6 +40,7 @@ public class Message implements Parcelable {
     public Message(
         String text,
         String sender,
+        String senderName,
         String target,
         String saunaId,
         Date date,
@@ -49,6 +51,7 @@ public class Message implements Parcelable {
         }
         this.text = text;
         this.sender = sender;
+        this.senderName = senderName;
         this.target = target;
         this.saunaId = saunaId;
         this.date = date;
@@ -69,6 +72,11 @@ public class Message implements Parcelable {
     }
     public void setSender(String sender) { this.sender = sender; }
 
+    public String getSenderName() {
+        return senderName;
+    }
+    public void setSenderName(String senderName) { this.senderName = senderName; }
+
     public String getTarget() {
         return target;
     }
@@ -88,12 +96,13 @@ public class Message implements Parcelable {
 
     @Override
     public String toString() {
-        String outputFormat = "Message: {\n\tid: %s\n\tsender: %s\n\ttarget: %s\n\tsauna: %s\n\tdate: %s\n\ttext: %s\n}";
+        String outputFormat = "Message: {\n\tid: %s\n\tsender: %s\n\tsenderName: %s\n\ttarget: %s\n\tsauna: %s\n\tdate: %s\n\ttext: %s\n}";
         return String.format(
             Locale.ENGLISH,
             outputFormat,
             this.id == null ? "NULL" : this.id,
             this.sender == null ? "NULL" : this.sender,
+            this.senderName == null ? "NULL" : this.senderName,
             this.target == null ? "NULL" : this.target,
             this.saunaId == null ? "NULL" : this.saunaId,
             this.date == null ? "NULL" : this.date.toString(),
@@ -114,6 +123,7 @@ public class Message implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(text);
         dest.writeString(sender);
+        dest.writeString(senderName);
         dest.writeString(target);
         dest.writeString(saunaId);
         dest.writeSerializable(date);
@@ -133,6 +143,7 @@ public class Message implements Parcelable {
     private Message(Parcel in) {
         this.text = in.readString();
         this.sender = in.readString();
+        this.senderName = in.readString();
         this.target = in.readString();
         this.saunaId = in.readString();
         this.date = (Date) in.readSerializable();

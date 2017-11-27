@@ -1,91 +1,124 @@
-<?xml version="1.0" encoding="utf-8"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="fi.jamk.saunaapp">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fi.jamk.saunaapp">
 
-<!-- To auto-complete the email text field in the login form with the user's emails -->
-<uses-permission android:name="android.permission.GET_ACCOUNTS" />
-<uses-permission android:name="android.permission.READ_PROFILE" />
-<uses-permission android:name="android.permission.READ_CONTACTS" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-<uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
-<application android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name"
-    android:supportsRtl="true" android:theme="@style/AppTheme">
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:windowSoftInputMode="adjustPan"
+        android:theme="@style/AppTheme">
 
-    <!--suppress AndroidDomInspection (api key is built from google-services.json) -->
-    <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_api_key" />
-
-    <!-- PROVIDERS -->
-
-    <provider
-        android:name=".providers.GenericFileProvider"
-        android:authorities="fi.jamk.saunaapp.providers"
-        android:exported="false"
-        android:grantUriPermissions="true">
+        <!-- suppress AndroidDomInspection (api key is built from google-services.json) -->
         <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/resource_paths"/>
-    </provider>
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_api_key" />
 
-    <!-- SERVICES -->
+        <!-- PROVIDERS -->
 
-    <service android:name=".services.SaunaAppMessagingService" android:exported="false">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-    </service>
+        <provider
+            android:name=".providers.GenericFileProvider"
+            android:authorities="fi.jamk.saunaapp.providers"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/resource_paths" />
+        </provider>
 
-    <service android:name=".services.SaunaAppInstanceIdService" android:exported="false">
-        <intent-filter>
-            <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-        </intent-filter>
-    </service>
+        <!-- SERVICES -->
 
-    <!-- ACTIVITIES -->
+        <service
+            android:name=".services.SaunaAppMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.SaunaAppInstanceIdService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
 
-    <activity android:screenOrientation="portrait" android:name=".activities.MainActivity"
-        android:label="@string/app_name" android:theme="@style/AppTheme.NoActionBar">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
+        <!-- ACTIVITIES -->
 
-    <activity android:screenOrientation="portrait"
-        android:name=".activities.LoginActivity"
-        android:label="@string/title_activity_login" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-    <activity android:screenOrientation="portrait"
-        android:name=".activities.SaunaDetailsActivity"
-        android:theme="@style/AppTheme.NoActionBar" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.SaunaDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.EditSaunaActivity"
+            android:parentActivityName=".activities.UserProfileActivity"
+            android:screenOrientation="portrait">
 
-    <activity android:screenOrientation="portrait"
-        android:name=".activities.EditSaunaActivity"
-        android:parentActivityName=".activities.UserProfileActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.activities.UserProfileActivity" />
+        </activity>
+        <activity
+            android:name=".activities.UserProfileActivity"
+            android:label="@string/title_activity_user_profile"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.activities.MainActivity" />
+        </activity>
 
-        <!-- Parent activity meta-data to support 4.0 and lower -->
-        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="fi.jamk.saunaapp.activities.UserProfileActivity" />
-    </activity>
-
-    <activity android:screenOrientation="portrait" android:name=".activities.UserProfileActivity"
-        android:label="@string/title_activity_user_profile" android:parentActivityName=".activities.MainActivity">
-        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="fi.jamk.saunaapp.activities.MainActivity" />
-    </activity>
-
-    <!-- ImagePickerWithCrop -->
-    <activity
-        android:name="tofira.imagepicker.TempActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/Theme.AppCompat.Translucent"/>
-
-    <activity
-        android:name="com.yalantis.ucrop.UCropActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-
-</application>
+        <!-- ImagePickerWithCrop -->
+        <activity
+            android:name="tofira.imagepicker.TempActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".activities.ConversationListActivity"
+            android:label="@string/title_message_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activities.MessageListActivity"
+            android:parentActivityName=".activities.ConversationListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.activities.ConversationListActivity" />
+        </activity>
+    </application>
 
 </manifest>

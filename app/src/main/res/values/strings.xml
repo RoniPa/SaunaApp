@@ -13,6 +13,9 @@
     <string name="toast_unexpected_error">Unexpected error</string>
     <string name="citation">- %s</string>
     <string name="right_chevron">Right chevron</string>
+    <string name="message_hint">Enter message</string>
+
+    <string name="button_action_send">SEND</string>
 
     <!-- Invitation strings -->
     <string name="invitation_title">Welcome to SaunaApp!</string>
@@ -57,4 +60,5 @@
     <string name="rate_sauna_header">How\'d you like it?</string>
     <string name="rate_sauna_hint">Write a short review</string>
     <string name="you_rated_as">You\'ve rated this sauna:</string>
+    <string name="title_message_list">Messages</string>
 </resources>

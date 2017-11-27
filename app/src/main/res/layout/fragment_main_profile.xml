@@ -9,9 +9,13 @@
         android:background="@color/colorPrimary12op"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <include bind:title='@{@string/messages}'
+        <include android:id="@+id/nav_item_messages"
+            bind:title='@{@string/messages}'
+            android:onClick="openMessages"
             layout="@layout/nav_list_item"/>
-        <include bind:title='@{@string/your_saunas}'
+        <include android:id="@+id/nav_item_saunas"
+            bind:title='@{@string/your_saunas}'
+            android:onClick="openSaunas"
             layout="@layout/nav_list_item"/>
     </LinearLayout>
 </layout>

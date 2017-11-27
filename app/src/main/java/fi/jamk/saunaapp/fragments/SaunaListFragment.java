@@ -129,7 +129,7 @@ public class SaunaListFragment extends Fragment implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna, SaunaViewHolder>(
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<Sauna, SaunaViewHolder> (
                 Sauna.class,
                 R.layout.sauna_item,
                 SaunaViewHolder.class,
@@ -163,24 +163,6 @@ public class SaunaListFragment extends Fragment implements
                 }
             }
         };
-
-        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                int saunaCount = mFirebaseAdapter.getItemCount();
-                int lastVisiblePosition =
-                        mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-                // If the recycler view is initially being loaded or the
-                // user is at the bottom of the list, scroll to the bottom
-                // of the list to show the newly added message.
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (saunaCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
-                    mSaunaRecyclerView.scrollToPosition(positionStart);
-                }
-            }
-        });
 
         mSaunaRecyclerView.setLayoutManager(mLinearLayoutManager);
         mSaunaRecyclerView.setAdapter(mFirebaseAdapter);

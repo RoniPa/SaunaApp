@@ -1,15 +1,21 @@
 package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fi.jamk.saunaapp.R;
+import fi.jamk.saunaapp.activities.ConversationListActivity;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 
 /**
@@ -28,6 +34,8 @@ public class UserProfileFragment extends Fragment {
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String TAG = "UserProfileFragment";
+
+    private List<View> navItems;
 
     public UserProfileFragment() {
         super();
@@ -61,6 +69,9 @@ public class UserProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main_profile, container, false);
         View rootView = binding.getRoot();
+
+        this.initNavItems(rootView);
+
         return rootView;
     }
 
@@ -97,5 +108,26 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    public void openMessages(View view) {
+        Intent intent = new Intent(getActivity(), ConversationListActivity.class);
+        startActivity(intent);
+    }
+
+    public void openSaunas(View view) {
+        Log.d(TAG, "Open profile sauna activity");
+    }
+
+    private void initNavItems(View root) {
+        this.navItems = new ArrayList<>();
+
+        View navMessages = root.findViewById(R.id.nav_item_messages);
+        navMessages.setOnClickListener(this::openMessages);
+        this.navItems.add(navMessages);
+
+        View navSaunas = root.findViewById(R.id.nav_item_saunas);
+        navSaunas.setOnClickListener(this::openSaunas);
+        this.navItems.add(navSaunas);
     }
 }
