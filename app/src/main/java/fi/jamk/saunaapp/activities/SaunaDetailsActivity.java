@@ -17,11 +17,18 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.RateSaunaFragment;
+import fi.jamk.saunaapp.models.Conversation;
 import fi.jamk.saunaapp.models.Rating;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.RatingService;
@@ -31,6 +38,13 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
 
     private FirebaseStorage mFirebaseStorage;
     private RatingService ratingService;
+
+    /**
+     * If user already has existing conversation
+     * with the sauna owner we store the id.
+     */
+    private Conversation existingConversation;
+    private FirebaseUser mUser;
 
     private Sauna sauna;
     private TextView detailsTextView;
@@ -43,16 +57,13 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back_white_24dp));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         Intent intent = getIntent();
         sauna = intent.getParcelableExtra(DETAILS_SAUNA);
         setTitle(sauna.getName());
+
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         ((RatingBar)findViewById(R.id.sauna_rating_bar)).setRating((float)sauna.getRating());
 
@@ -97,13 +108,34 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         detailsTextView = (TextView) findViewById(R.id.details_text);
         detailsTextView.setText(sauna.getDescription());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        FirebaseDatabase.getInstance().getReference("conversations")
+            .child(mUser.getUid())
+            .orderByChild("target")
+            .equalTo(sauna.getOwner())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        dataSnapshot.getChildren()
+                            .forEach(dataSnapshot1 -> existingConversation = dataSnapshot1.getValue(Conversation.class));
+                    }
+                }
+                @Override public void onCancelled(DatabaseError databaseError) {}
+            });
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            Intent intent1 = new Intent(SaunaDetailsActivity.this, MessageListActivity.class);
+
+            if (existingConversation != null) {
+                intent1.putExtra(ConversationListActivity.CONV_DETAIL_ITEM, existingConversation);
+            } else {
+                Conversation conv = new Conversation();
+                conv.setTarget(sauna.getOwner());
+                conv.setTargetName(sauna.getOwnerName());
+                intent1.putExtra(ConversationListActivity.CONV_DETAIL_ITEM, conv);
             }
+
+            startActivity(intent1);
         });
     }
 

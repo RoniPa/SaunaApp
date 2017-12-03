@@ -273,8 +273,9 @@ public class EditSaunaActivity extends BaseActivity implements
      */
     private void setModelValues() {
         try {
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            sauna.setOwner(uid);
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            sauna.setOwner(user.getUid());
+            sauna.setOwnerName(user.getDisplayName());
         } catch (NullPointerException ex) {
             Log.e(TAG, ex.getMessage());
             return;

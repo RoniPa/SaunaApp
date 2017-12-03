@@ -33,6 +33,7 @@ public class Sauna implements Parcelable {
     private String name;
     private String photoPath;
     private String owner;
+    private String ownerName;
 
     private double rating;
     /**
@@ -54,6 +55,7 @@ public class Sauna implements Parcelable {
             String name,
             String photoPath,
             String owner,
+            String ownerName,
             double latitude,
             double longitude,
             double rating,
@@ -67,6 +69,7 @@ public class Sauna implements Parcelable {
         this.name = name;
         this.photoPath = photoPath;
         this.owner = owner;
+        this.ownerName = ownerName;
         this.latitude = latitude;
         this.longitude = longitude;
         this.rating = rating;
@@ -98,6 +101,9 @@ public class Sauna implements Parcelable {
     public String getOwner() { return owner; }
     public void setOwner(String owner) { this.owner = owner; }
 
+    public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
+
     public double getLatitude() { return latitude; }
     public void setLatitude(double latitude) { this.latitude = latitude; }
 
@@ -119,7 +125,7 @@ public class Sauna implements Parcelable {
 
     @Override
     public String toString() {
-        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoPath: %s\n\towner: %s\n\tlatitude: %f\n\tlongitude: %f\n}";
+        String outputFormat = "Sauna: {\n\tid: %s\n\tname: %s\n\tdescription: %s\n\tphotoPath: %s\n\towner: %s (%s)\n\tlatitude: %f\n\tlongitude: %f\n}";
         return String.format(
                 Locale.ENGLISH,
                 outputFormat,
@@ -128,6 +134,7 @@ public class Sauna implements Parcelable {
                 this.description == null ? "NULL" : this.description,
                 this.photoPath == null ? "NULL" : this.photoPath,
                 this.owner == null ? "NULL" : this.owner,
+                this.ownerName == null ? "NULL" : this.ownerName,
                 this.latitude,
                 this.longitude,
                 this.rating,
@@ -150,6 +157,7 @@ public class Sauna implements Parcelable {
         dest.writeString(name);
         dest.writeString(photoPath);
         dest.writeString(owner);
+        dest.writeString(ownerName);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
         dest.writeDouble(rating);
@@ -172,6 +180,7 @@ public class Sauna implements Parcelable {
         this.name = in.readString();
         this.photoPath = in.readString();
         this.owner = in.readString();
+        this.ownerName = in.readString();
         this.latitude = in.readDouble();
         this.longitude = in.readDouble();
         this.rating = in.readDouble();
