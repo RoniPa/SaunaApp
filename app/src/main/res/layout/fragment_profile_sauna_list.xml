@@ -7,6 +7,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/profile_sauna_recycler_view"
+        android:paddingBottom="72dp"
+        android:clipToPadding="false"
         android:name="fi.jamk.saunaapp.fragments.ProfileSaunaListFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

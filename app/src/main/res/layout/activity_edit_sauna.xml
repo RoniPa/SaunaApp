@@ -62,22 +62,23 @@
             </LinearLayout>
 
             <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="@string/name_hint"
-            android:ems="10"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:id="@+id/nameEditText" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:hint="@string/name_hint"
+                android:ems="10"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:id="@+id/nameEditText" />
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:hint="@string/description_hint"
-            android:ems="10"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:id="@+id/descriptionEditText" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences|textMultiLine"
+                android:hint="@string/description_hint"
+                android:ems="10"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:id="@+id/descriptionEditText"
+                android:maxLines="6"/>
 
         </LinearLayout>
     </ScrollView>

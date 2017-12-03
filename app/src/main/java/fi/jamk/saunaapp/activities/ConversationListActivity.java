@@ -45,22 +45,9 @@ public class ConversationListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mLinearLayoutManager = new LinearLayoutManager(this);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mRecyclerView = findViewById(R.id.conversation_list);
         if (mRecyclerView != null) {

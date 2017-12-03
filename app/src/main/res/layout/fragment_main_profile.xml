@@ -9,13 +9,24 @@
         android:background="@color/colorPrimary12op"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/name_text_view"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
         <include android:id="@+id/nav_item_messages"
             bind:title='@{@string/messages}'
-            android:onClick="openMessages"
             layout="@layout/nav_list_item"/>
+
         <include android:id="@+id/nav_item_saunas"
             bind:title='@{@string/your_saunas}'
-            android:onClick="openSaunas"
             layout="@layout/nav_list_item"/>
+
+        <include android:id="@+id/nav_item_logout"
+            bind:title='@{@string/action_sign_out}'
+            layout="@layout/nav_list_item"/>
+
     </LinearLayout>
 </layout>

@@ -5,17 +5,30 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.activities.ConversationListActivity;
+import fi.jamk.saunaapp.activities.LoginActivity;
+import fi.jamk.saunaapp.activities.MainActivity;
+import fi.jamk.saunaapp.activities.UserProfileActivity;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
 
 /**
@@ -35,6 +48,7 @@ public class UserProfileFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String TAG = "UserProfileFragment";
 
+    private FirebaseUser mUser;
     private List<View> navItems;
 
     public UserProfileFragment() {
@@ -61,6 +75,8 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @Override
@@ -69,6 +85,9 @@ public class UserProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main_profile, container, false);
         View rootView = binding.getRoot();
+
+        TextView tView = rootView.findViewById(R.id.name_text_view);
+        tView.setText(mUser.getDisplayName());
 
         this.initNavItems(rootView);
 
@@ -116,7 +135,17 @@ public class UserProfileFragment extends Fragment {
     }
 
     public void openSaunas(View view) {
-        Log.d(TAG, "Open profile sauna activity");
+        Intent intent = new Intent(getActivity(), UserProfileActivity.class);
+        startActivity(intent);
+    }
+
+    public void signOut(View view) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("users/" + mUser.getUid() + "/notificationTokens");
+
+        ref.setValue(null).addOnCompleteListener(task -> {
+            ((MainActivity)getActivity()).signOut();
+        });
     }
 
     private void initNavItems(View root) {
@@ -129,5 +158,9 @@ public class UserProfileFragment extends Fragment {
         View navSaunas = root.findViewById(R.id.nav_item_saunas);
         navSaunas.setOnClickListener(this::openSaunas);
         this.navItems.add(navSaunas);
+
+        View navSignOut = root.findViewById(R.id.nav_item_logout);
+        navSignOut.setOnClickListener(this::signOut);
+        this.navItems.add(navSignOut);
     }
 }

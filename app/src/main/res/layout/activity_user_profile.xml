@@ -10,11 +10,6 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <fragment android:name="fi.jamk.saunaapp.fragments.ProfileDetailsFragment"
-            android:id="@+id/profileDetailsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout="@layout/fragment_profile_details"/>
         <fragment
             android:id="@+id/profileSaunasFragment"
             android:name="fi.jamk.saunaapp.fragments.ProfileSaunaListFragment"
@@ -29,5 +24,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_mode_edit_white_24dp"/>
+        android:src="@drawable/ic_add_white_48dp"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -4,9 +4,6 @@
         <variable name="title" type="java.lang.String"/>
     </data>
     <RelativeLayout
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:orientation="horizontal"
         android:background="@drawable/white_and_border_bottom"
         android:paddingTop="@dimen/activity_vertical_margin"
@@ -22,6 +19,7 @@
             android:layout_alignParentStart="true"
             android:text='@{title}' />
         <ImageView
+            android:focusable="false"
             android:layout_centerInParent="true"
             android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"

@@ -48,6 +48,8 @@ public class LoginActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorTransparent, null));
+
         // Init FirebaseAuth
         mFirebaseAuth = FirebaseAuth.getInstance();
 

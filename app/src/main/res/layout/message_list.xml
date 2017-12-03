@@ -9,7 +9,7 @@
         android:id="@+id/reyclerview_message_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="64dp"
         android:clipToPadding="false"
         app:layout_constraintHeight_default="wrap"
         app:layout_constraintTop_toTopOf="parent"

@@ -58,7 +58,6 @@
         </service>
 
         <!-- ACTIVITIES -->
-
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
@@ -73,6 +72,7 @@
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.SaunaDetailsActivity"
@@ -90,12 +90,29 @@
         </activity>
         <activity
             android:name=".activities.UserProfileActivity"
-            android:label="@string/title_activity_user_profile"
+            android:label="@string/your_saunas"
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="fi.jamk.saunaapp.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.ConversationListActivity"
+            android:label="@string/title_message_list"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.MessageListActivity"
+            android:parentActivityName=".activities.ConversationListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fi.jamk.saunaapp.activities.ConversationListActivity" />
         </activity>
 
         <!-- ImagePickerWithCrop -->
@@ -107,18 +124,6 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".activities.ConversationListActivity"
-            android:label="@string/title_message_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
-            android:name=".activities.MessageListActivity"
-            android:parentActivityName=".activities.ConversationListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="fi.jamk.saunaapp.activities.ConversationListActivity" />
-        </activity>
     </application>
 
 </manifest>

@@ -29,7 +29,7 @@ public class StringFormat {
             cal.clear();
             cal.add(Calendar.YEAR, -1);
             if (date.after(cal.getTime())) {
-                df = new SimpleDateFormat("dd.MM HH:mm", locale);
+                df = new SimpleDateFormat("dd.MM. HH:mm", locale);
             } else {
                 df = new SimpleDateFormat("dd.MM.yyyy", locale);
             }

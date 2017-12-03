@@ -321,6 +321,7 @@ public class EditSaunaActivity extends BaseActivity implements
 
         if (id == null || id.equals("")) {
             id = mFirebaseSaunaRef.push().getKey();
+            sauna.setId(id);
         }
 
         mFirebaseSaunaRef.child(id).setValue(sauna);

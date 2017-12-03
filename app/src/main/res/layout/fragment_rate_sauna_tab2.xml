@@ -16,9 +16,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:inputType="textCapSentences"
+        android:inputType="textCapSentences|textMultiLine"
         android:hint="@string/rate_sauna_hint"
         android:layout_marginStart="24dp"
+        android:maxLines="6"
         android:layout_marginEnd="24dp" />
     <TextView
         android:id="@+id/sauna_name_text_view"

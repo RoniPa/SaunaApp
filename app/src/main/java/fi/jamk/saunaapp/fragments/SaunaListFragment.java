@@ -101,9 +101,7 @@ public class SaunaListFragment extends Fragment implements
 
         // mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         mSaunaRecyclerView = (RecyclerView) rootView.findViewById(R.id.saunaRecyclerView);
-
         mLinearLayoutManager = new LinearLayoutManager(getContext());
-        mLinearLayoutManager.setStackFromEnd(true);
 
         return rootView;
     }
@@ -142,11 +140,12 @@ public class SaunaListFragment extends Fragment implements
                     int position) {
 
                 Location userPos = UserLocationService.getCachedLocation();
-                double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
 
                 // mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                viewHolder.descriptionTextView
-                        .setText(sauna.getDescription() +", "+
+                viewHolder.descriptionTextView.setText(sauna.getDescription());
+                viewHolder.ratingBar.setRating((float)sauna.getRating());
+                double distanceInKilometers = countSaunaDistanceInKilometers(userPos, sauna);
+                viewHolder.distanceTextView.setText(
                                 StringFormat.roundedKilometersShort(
                                         ((BaseActivity)getContext()).getLocale(),
                                         distanceInKilometers));

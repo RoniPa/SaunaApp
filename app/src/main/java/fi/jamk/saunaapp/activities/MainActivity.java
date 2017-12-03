@@ -58,6 +58,7 @@ public class MainActivity extends BaseActivity implements
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser mFirebaseUser;
     private FirebaseAnalytics mFirebaseAnalytics;
     private UserLocationService mUserLocationService;
@@ -115,6 +116,24 @@ public class MainActivity extends BaseActivity implements
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
+
+        mFirebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user == null) {
+                    Log.d(TAG, "AuthState changed, go to login");
+                    // Not signed in, launch the Login activity
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                } else {
+                    mUsername = mFirebaseUser.getDisplayName();
+                    if (mFirebaseUser.getPhotoUrl() != null) {
+                        mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+                    }
+                }
+            }
+        });
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
             .enableAutoManage(this, this)
@@ -216,38 +235,6 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int itemId = item.getItemId();
-        switch (itemId) {
-            case R.id.profile_menu:
-                startActivity(new Intent(this, UserProfileActivity.class));
-                return true;
-            case R.id.action_settings:
-                fetchConfig();
-                return true;
-            case R.id.sign_out_menu:
-                mFirebaseAuth.signOut();
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mUsername = "Anon";
-                startActivity(new Intent(this, LoginActivity.class));
-                return true;
-            default:
-                // The user's action was not recognized.
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: requestCode=" + requestCode +
@@ -308,6 +295,11 @@ public class MainActivity extends BaseActivity implements
         if (listFragment != null) {
             listFragment.onLocationChanged(location);
         }
+    }
+
+    public void signOut() {
+        mFirebaseAuth.signOut();
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
     }
 
     /**

@@ -121,6 +121,8 @@ public class ProfileSaunaListFragment extends Fragment {
                 viewHolder.descriptionTextView
                         .setText(sauna.getDescription());
 
+                viewHolder.ratingBar.setRating((float)sauna.getRating());
+
                 viewHolder.nameTextView.setText(sauna.getName());
                 if (sauna.getPhotoPath() != null) {
                     StorageReference imageRef = mFirebaseStorage
