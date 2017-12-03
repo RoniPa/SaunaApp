@@ -16,6 +16,7 @@
         <android.support.v7.widget.RecyclerView
             android:clipToPadding="false"
             android:paddingTop="16dp"
+            android:paddingBottom="72dp"
             android:id="@+id/saunaRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
