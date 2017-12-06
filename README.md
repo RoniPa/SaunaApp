@@ -3,22 +3,18 @@ Sample application utilizing Firebase services.
 
 # Table of contents
 
-- [Introduction](#)
-- [Table of contents](#)
-- [Installation](#)
-	- [External libraries](#)
-	- [Screenshots](#)
-- [Architechture](#)
-	- [Database](#)
-	- [Entities](#)
-		- [Sauna](#)
-			- [Properties](#)
-		- [Rating](#)
-			- [Properties](#)
-		- [Conversation](#)
-			- [Properties](#)
-		- [Message](#)
-			- [Properties](#)
+- [Introduction](#introduction)
+- [Table of contents](#table-of-contents)
+- [Installation](#installation)
+	- [External libraries](#external-libraries)
+	- [Screenshots](#screenshots)
+- [Architechture](#architechture)
+	- [Database](#database)
+	- [Entities](#entities)
+		- [Sauna](#sauna)
+		- [Rating](#rating)
+		- [Conversation](#conversation)
+		- [Message](#message)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -70,14 +66,14 @@ root
                |__ token
 </pre>
 
-NOTE! As you might have realized, the Conversation - Message structure is not very efficient. Each Conversation and Message is saved twice - for both participants. The data is structured like this mainly for ease of implementation. However, if this project is ever furthered to other than demonstrative purposes, attention should be brought to the issue of storing the data a bit more efficiently.
+_**NOTE:** As you might have realized, the Conversation - Message structure is not very efficient. Each Conversation and Message is saved twice - for both participants. The data is structured like this mainly for ease of implementation. However, if this project is ever furthered to other than demonstrative purposes, attention should be brought to the issue of storing the data a bit more efficiently._
 
 ## Entities
 
 ### Sauna
 Sauna is arguably the most important, basic entity in the system. Sauna represents a location, owned by a user, displayed on the list and map views.
 
-#### Properties
+**Properties**
 - id: Sauna id
 - name: Name for Sauna
 - description: Description text for the sauna
@@ -92,7 +88,7 @@ Sauna is arguably the most important, basic entity in the system. Sauna represen
 ### Rating
 Represents a rating given to a Sauna by an user.
 
-#### Properties
+**Properties**
 - id: Rating id
 - user: Id of the user giving this Rating
 - saunaId: Sauna id to rate
@@ -103,7 +99,7 @@ Represents a rating given to a Sauna by an user.
 ### Conversation
 Represents a conversation from a user to another.
 
-#### Properties
+**Properties**
 - id: Conversation id
 - target: Id of the targeted user
 - targetName: Display name of the targeted user
@@ -113,7 +109,7 @@ Represents a conversation from a user to another.
 ### Message
 A single message from user to another. Saved separately for each user.
 
-#### Properties
+**Properties**
 - id: Message id
 - text: Text content of the message
 - sender: Id of the user that sent the message
