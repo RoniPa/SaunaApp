@@ -1,9 +1,24 @@
-# SaunaApp
-Sample application utilizing Firebase and other stuff
+# Introduction
+Sample application utilizing Firebase services.
 
 # Table of contents
 
---- Insert table here ---
+- [Introduction](#)
+- [Table of contents](#)
+- [Installation](#)
+	- [External libraries](#)
+	- [Screenshots](#)
+- [Architechture](#)
+	- [Database](#)
+	- [Entities](#)
+		- [Sauna](#)
+			- [Properties](#)
+		- [Rating](#)
+		- [Properties](#)
+	- [Conversation](#)
+		- [Properties](#)
+	- [Message](#)
+		- [Properties](#)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -12,7 +27,7 @@ You need Google Play Service SDK tools installed to Android Studio.
 2. Go to your Firebase console and download google-services.json. Add it to app folder.
 3. Save config-example.xml to resources with your data as config.xml
 
-## External libraries used
+## External libraries
 - [ImagePickerWithCrop](https://github.com/Tofira/ImagePickerWithCrop)
 - which uses [UCrop](https://github.com/Yalantis/uCrop)
 - [Mike Gavaghan's Geodesy library](http://www.gavaghan.org/blog/free-source-code/geodesy-library-vincentys-formula-java/)
@@ -77,7 +92,7 @@ Sauna is arguably the most important, basic entity in the system. Sauna represen
 ### Rating
 Represents a rating given to a Sauna by an user.
 
-### Properties
+#### Properties
 - id: Rating id
 - user: Id of the user giving this Rating
 - saunaId: Sauna id to rate
@@ -85,20 +100,20 @@ Represents a rating given to a Sauna by an user.
 - time: Time of the rating (Date)
 - rating: Double value representing rating ( 0 <= rating <= 5)
 
-## Conversation
+### Conversation
 Represents a conversation from a user to another.
 
-### Properties
+#### Properties
 - id: Conversation id
 - target: Id of the targeted user
 - targetName: Display name of the targeted user
 - touched: Date of the last time this conversation was touched. Can be used for ordering for example.
 - _hasNew: Whether conversation holds changes the user has not seen. 0 if nothing, else count of new messages.
 
-## Message
+### Message
 A single message from user to another. Saved separately for each user.
 
-### Properties
+#### Properties
 - id: Message id
 - text: Text content of the message
 - sender: Id of the user that sent the message
