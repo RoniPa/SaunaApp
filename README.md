@@ -14,11 +14,11 @@ Sample application utilizing Firebase services.
 		- [Sauna](#)
 			- [Properties](#)
 		- [Rating](#)
-		- [Properties](#)
-	- [Conversation](#)
-		- [Properties](#)
-	- [Message](#)
-		- [Properties](#)
+			- [Properties](#)
+		- [Conversation](#)
+			- [Properties](#)
+		- [Message](#)
+			- [Properties](#)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
