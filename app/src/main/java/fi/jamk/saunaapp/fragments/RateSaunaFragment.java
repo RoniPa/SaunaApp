@@ -120,7 +120,6 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
 
     @Override
     public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-        Log.d("SaunaRating", "Rating changed to "+ v);
         actionButtonContinue.setTextColor(getResources().getColor(R.color.colorPrimary, null));
         actionButtonContinue.setEnabled(true);
         this.rating = v;

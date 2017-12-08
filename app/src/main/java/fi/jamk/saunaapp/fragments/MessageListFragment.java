@@ -2,6 +2,7 @@ package fi.jamk.saunaapp.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -63,6 +64,13 @@ public class MessageListFragment extends Fragment {
 
         if (getArguments().containsKey(ConversationListActivity.CONV_DETAIL_ITEM)) {
             mConversation = getArguments().getParcelable(ConversationListActivity.CONV_DETAIL_ITEM);
+
+            // Reset message indicator
+            if (mConversation != null && mConversation.getId() != null) {
+                FirebaseDatabase.getInstance().getReference("conversations")
+                        .child(mUser.getUid()).child(mConversation.getId()).child("hasNew")
+                        .setValue(0);
+            }
         }
 
         mLayoutManager = new LinearLayoutManager(getContext());
@@ -85,7 +93,14 @@ public class MessageListFragment extends Fragment {
             mConversation.setId(ref1.push().getKey());
             ref1.child(mConversation.getId()).setValue(mConversation);
 
-            Conversation conv2 = new Conversation(mUser.getUid(), mUser.getDisplayName(), mConversation.getId());
+            Conversation conv2 = new Conversation(
+                    mUser.getUid(),
+                    mUser.getDisplayName(),
+                    mConversation.getTouched(),
+                    mConversation.getHasNew(),
+                    mConversation.getId()
+            );
+
             ref2.child(mConversation.getId()).setValue(conv2);
         }
 
@@ -161,6 +176,8 @@ public class MessageListFragment extends Fragment {
                     Log.d("MessageList", "Created message from "+ message.getSender() + " to " + message.getTarget());
 
                     if (databaseError == null) {
+                        updateConversations();
+
                         mMessageEditText.setText("");
                         // Hide keyboard
                         View view = getActivity().getCurrentFocus();
@@ -172,13 +189,58 @@ public class MessageListFragment extends Fragment {
                         }
                     } else {
                         Toast.makeText(
-                                getContext(),
-                                "Error sending message. Please try again shortly.",
-                                Toast.LENGTH_SHORT
+                            getContext(),
+                            "Error sending message. Please try again shortly.",
+                            Toast.LENGTH_SHORT
                         ).show();
                     }
                 }
             });
         }
+    }
+
+    /**
+     * Run transaction to update target conversations
+     */
+    private void updateConversations() {
+        DatabaseReference convRef = FirebaseDatabase.getInstance()
+                .getReference("conversations");
+
+        convRef.runTransaction(new Transaction.Handler() {
+            @Override public Transaction.Result doTransaction(MutableData mutableData) {
+                // Update touch times
+                Date touchDate = new Date();
+                mutableData.child(mConversation.getTarget()).child(mConversation.getId()).child("touched").setValue(touchDate);
+                mutableData.child(mUser.getUid()).child(mConversation.getId()).child("touched").setValue(touchDate);
+
+                // Update new counter
+                Object value = mutableData.child(mConversation.getTarget())
+                        .child(mConversation.getId())
+                        .child("hasNew").getValue();
+                int count;
+                if (value == null) {
+                    count = 0;
+                } else {
+                    count =((Long) value).intValue();
+                }
+
+                mutableData.child(mConversation.getTarget())
+                        .child(mConversation.getId())
+                        .child("hasNew").setValue(++count);
+
+                return Transaction.success(mutableData);
+            }
+            @Override public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    Toast.makeText(
+                            getContext(),
+                            "Database error!",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    Log.e("MessageList", databaseError.getMessage());
+                }
+            }
+        });
     }
 }

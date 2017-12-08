@@ -26,6 +26,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Date;
+
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.RateSaunaFragment;
 import fi.jamk.saunaapp.models.Conversation;
@@ -132,6 +134,7 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
                 Conversation conv = new Conversation();
                 conv.setTarget(sauna.getOwner());
                 conv.setTargetName(sauna.getOwnerName());
+                conv.setTouched(new Date());
                 intent1.putExtra(ConversationListActivity.CONV_DETAIL_ITEM, conv);
             }
 

@@ -122,7 +122,6 @@ public class MainActivity extends BaseActivity implements
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user == null) {
-                    Log.d(TAG, "AuthState changed, go to login");
                     // Not signed in, launch the Login activity
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();

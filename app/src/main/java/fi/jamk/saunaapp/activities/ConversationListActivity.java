@@ -1,5 +1,7 @@
 package fi.jamk.saunaapp.activities;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Locale;
 
 import fi.jamk.saunaapp.R;
 
@@ -91,18 +95,29 @@ public class ConversationListActivity extends BaseActivity {
             this.mContext = context;
         }
 
+        @SuppressLint("DefaultLocale")
         @Override
         protected void populateViewHolder(ViewHolder viewHolder, Conversation model, int position) {
             viewHolder.mContentView.setText(model.getTargetName());
+
+            if (model.getHasNew() > 0) {
+                viewHolder.mHasNewText.setVisibility(View.VISIBLE);
+                viewHolder.mHasNewText.setText(String.format("%d", model.getHasNew()));
+            } else {
+                viewHolder.mHasNewText.setVisibility(View.GONE);
+            }
         }
 
         public static class ViewHolder extends BindableViewHolder<ViewHolder.Binding> {
             final TextView mContentView;
+            final TextView mHasNewText;
+
             private ViewHolder.Binding mBinding;
 
             ViewHolder(View view) {
                 super(view);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mContentView = view.findViewById(R.id.content);
+                mHasNewText = view.findViewById(R.id.hasNewText);
             }
 
             @Override
@@ -112,9 +127,11 @@ public class ConversationListActivity extends BaseActivity {
 
             public static class Binding {
                 public String content;
+                public int hasNew;
 
-                public Binding(String content) {
+                public Binding(String content, int hasNew) {
                     this.content = content;
+                    this.hasNew = hasNew;
                 }
             }
         }

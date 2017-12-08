@@ -104,7 +104,7 @@ Represents a conversation from a user to another.
 - _target:_ Id of the targeted user
 - _targetName:_ Display name of the targeted user
 - _touched:_ Date of the last time this conversation was touched. Can be used for ordering for example.
-- __hasNew:_ Whether conversation holds changes the user has not seen. 0 if nothing, else count of new messages.
+- _hasNew:_ Whether conversation holds changes the user has not seen. 0 if nothing, else count of new messages.
 
 ### Message
 A single message from user to another. Saved separately for each user.
