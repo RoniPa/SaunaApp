@@ -120,4 +120,6 @@ A single message from user to another. Saved separately for each user.
 - _date:_ Time of sending the message
 
 ## Backend
-SaunaApp uses a 
+SaunaApp uses a Firebase function as a light backend to monitor message events in the database to 
+send push notifications to client devices. The backend in found in [this repository.](https://github.com/RoniPa/SaunaApp-backend)
+Notification tokens for each users' device are stored within the Realtime Database.
