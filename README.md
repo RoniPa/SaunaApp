@@ -15,6 +15,7 @@ Sample application utilizing Firebase services.
 		- [Rating](#rating)
 		- [Conversation](#conversation)
 		- [Message](#message)
+	- [Backend](#backend)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -103,7 +104,7 @@ Represents a conversation from a user to another.
 - _id:_ Conversation id
 - _target:_ Id of the targeted user
 - _targetName:_ Display name of the targeted user
-- _touched:_ Date of the last time this conversation was touched. Can be used for ordering for example.
+- _touched:_ Timestamp of the last time this conversation was touched, stored as a long number. Can be used for ordering for example.
 - _hasNew:_ Whether conversation holds changes the user has not seen. 0 if nothing, else count of new messages.
 
 ### Message
@@ -117,3 +118,6 @@ A single message from user to another. Saved separately for each user.
 - _target:_ Id of the targeted user
 - _saunaId:_ Id of the sauna that this message concerns (optional)
 - _date:_ Time of sending the message
+
+## Backend
+SaunaApp uses a 

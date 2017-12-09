@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.Transaction;
 
 import java.util.Date;
@@ -67,9 +68,11 @@ public class MessageListFragment extends Fragment {
 
             // Reset message indicator
             if (mConversation != null && mConversation.getId() != null) {
-                FirebaseDatabase.getInstance().getReference("conversations")
-                        .child(mUser.getUid()).child(mConversation.getId()).child("hasNew")
-                        .setValue(0);
+                DatabaseReference convRef = FirebaseDatabase.getInstance().getReference("conversations")
+                        .child(mUser.getUid()).child(mConversation.getId());
+
+                convRef.child("hasNew").setValue(0);
+                convRef.child("touched").setValue(ServerValue.TIMESTAMP);
             }
         }
 
@@ -209,9 +212,8 @@ public class MessageListFragment extends Fragment {
         convRef.runTransaction(new Transaction.Handler() {
             @Override public Transaction.Result doTransaction(MutableData mutableData) {
                 // Update touch times
-                Date touchDate = new Date();
-                mutableData.child(mConversation.getTarget()).child(mConversation.getId()).child("touched").setValue(touchDate);
-                mutableData.child(mUser.getUid()).child(mConversation.getId()).child("touched").setValue(touchDate);
+                mutableData.child(mConversation.getTarget()).child(mConversation.getId()).child("touched").setValue(ServerValue.TIMESTAMP);
+                mutableData.child(mUser.getUid()).child(mConversation.getId()).child("touched").setValue(ServerValue.TIMESTAMP);
 
                 // Update new counter
                 Object value = mutableData.child(mConversation.getTarget())

@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.Locale;
 
@@ -53,6 +54,13 @@ public class ConversationListActivity extends BaseActivity {
 
         mLinearLayoutManager = new LinearLayoutManager(this);
 
+        // This reverses data on client side. Firebase Realtime Database
+        // doesn't support descending queries, and we cannot use negative
+        // Server timestamp without modifying it in functions or in a
+        // second request (after saving)
+        mLinearLayoutManager.setReverseLayout(true);
+        mLinearLayoutManager.setStackFromEnd(true);
+
         mRecyclerView = findViewById(R.id.conversation_list);
         if (mRecyclerView != null) {
             setupRecyclerView(this, mRecyclerView);
@@ -66,9 +74,10 @@ public class ConversationListActivity extends BaseActivity {
      * @param recyclerView
      */
     private void setupRecyclerView(@NonNull Context context, @NonNull RecyclerView recyclerView) {
-        DatabaseReference ref = FirebaseDatabase.getInstance()
+        Query ref = FirebaseDatabase.getInstance()
                 .getReference("conversations")
-                .child(mUser.getUid());
+                .child(mUser.getUid())
+                .orderByChild("touched");
 
         mListAdapter = new ConversationListAdapter(context, ref);
         recyclerView.setLayoutManager(mLinearLayoutManager);
@@ -91,6 +100,11 @@ public class ConversationListActivity extends BaseActivity {
         private Context mContext;
 
         ConversationListAdapter(Context context, DatabaseReference conversationRef) {
+            super(Conversation.class, R.layout.conversation_list_content, ViewHolder.class, conversationRef);
+            this.mContext = context;
+        }
+
+        ConversationListAdapter(Context context, Query conversationRef) {
             super(Conversation.class, R.layout.conversation_list_content, ViewHolder.class, conversationRef);
             this.mContext = context;
         }

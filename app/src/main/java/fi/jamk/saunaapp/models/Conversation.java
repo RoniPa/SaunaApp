@@ -26,7 +26,7 @@ public class Conversation implements Parcelable {
     private String id;
     private String target;
     private String targetName;
-    private Date touched;
+    private double touched;
     private int hasNew;
 
     public Conversation() {
@@ -37,7 +37,7 @@ public class Conversation implements Parcelable {
     public Conversation(
             String target,
             String targetName,
-            Date touched,
+            double touched,
             int hasNew,
             @Nullable String id
     ) {
@@ -65,22 +65,22 @@ public class Conversation implements Parcelable {
         this.target = target;
     }
 
-    public Date getTouched() { return touched; }
-    public void setTouched(Date touched) { this.touched = touched; }
+    public double getTouched() { return touched; }
+    public void setTouched(double touched) { this.touched = touched; }
 
     public int getHasNew() { return hasNew; }
     public void sethasNew(int hasNew) { this.hasNew = hasNew; }
 
     @Override
     public String toString() {
-        String outputFormat = "Conversation: {\n\tid: %s\n\ttarget: %s\n\ttargetName: %s\n\ttouched: %s\n\thasNew: %d\n}";
+        String outputFormat = "Conversation: {\n\tid: %s\n\ttarget: %s\n\ttargetName: %s\n\ttouched: %d\n\thasNew: %d\n}";
         return String.format(
                 Locale.ENGLISH,
                 outputFormat,
                 this.id == null ? "NULL" : this.id,
                 this.target == null ? "NULL" : this.target,
                 this.targetName == null ? "NULL" : this.targetName,
-                this.touched == null ? "NULL" : this.touched.toString(),
+                this.touched,
                 this.hasNew
         );
     }
@@ -98,7 +98,7 @@ public class Conversation implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(target);
         dest.writeString(targetName);
-        dest.writeSerializable(touched);
+        dest.writeDouble(touched);
         dest.writeInt(hasNew);
         dest.writeString(id);
     }
@@ -116,7 +116,7 @@ public class Conversation implements Parcelable {
     private Conversation(Parcel in) {
         this.target = in.readString();
         this.targetName = in.readString();
-        this.touched = (Date)in.readSerializable();
+        this.touched = in.readDouble();
         this.hasNew = in.readInt();
         this.id = in.readString();
     }
