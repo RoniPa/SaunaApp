@@ -1,5 +1,10 @@
 # Introduction
-Sample application utilizing Firebase services.
+This application allows users to share, view and review saunas, and send messages. Application uses user's position to show distance for each sauna. Application is built on [Firebase](https://firebase.google.com/) and used services include **Firebase Realtime Database, Cloud Storage, Authentication, Firebase Functions** and **Crash Reporting.** Application also displays ads for the users.
+
+The project was implemented as part of the Mobile Project course at JAMK University of Applied Sciences.
+
+### Project timeline
+At the moment the project has taken around 150 hours of work. See [the work log](https://drive.google.com/open?id=1CPqRP2ELmDbUH723Z50xf39h4uKDOUJgJaM_ro6_PMA) for details about tasks and timeline of the project.
 
 # Table of contents
 
@@ -8,7 +13,9 @@ Sample application utilizing Firebase services.
 - [Installation](#installation)
 	- [External libraries](#external-libraries)
 	- [Screenshots](#screenshots)
-- [Architechture](#architechture)
+- [Architecture](#architecture)
+    - [Application structure](#application-structure)
+        - [Activities](#activities)
 	- [Database](#database)
 	- [Entities](#entities)
 		- [Sauna](#sauna)
@@ -31,10 +38,28 @@ You need Google Play Service SDK tools installed to Android Studio.
 
 ## Screenshots
 
-<img src="/screenshots/1.png?raw=true" width="440"/> <img src="/screenshots/4.png?raw=true" width="440"/>
-<img src="/screenshots/2.png?raw=true" width="440"/> <img src="/screenshots/3.png?raw=true" width="440"/>
+<img src="/screenshots/1.png?raw=true" width="220"/> <img src="/screenshots/4.png?raw=true" width="220"/>
+<img src="/screenshots/2.png?raw=true" width="220"/> <img src="/screenshots/3.png?raw=true" width="220"/>
 
-# Architechture
+# Architecture
+
+## Application structure
+
+Here is a basic representation of the applications Activities and their hierarchy:
+
+<pre>
+MainActivity
+  |_ SaunaDetailsActivity
+  |_ UserProfileActivity
+  |  |_ EditSaunaActivity
+  |_ ConversationListActivity
+     |_ MessageListActivity
+     
+_ LoginActivity
+_ UCropActivity
+</pre>
+
+## Activities
 
 ## Database
 SaunaApp uses Firebase real time database for storing data. At the moment all data access is restricted to logged in users.
@@ -72,7 +97,7 @@ _**NOTE:** As you might have realized, the Conversation - Message structure is n
 ## Entities
 
 ### Sauna
-Sauna is arguably the most important, basic entity in the system. Sauna represents a location, owned by a user, displayed on the list and map views.
+Sauna is the most important, basic entity in the system. Sauna represents a location, owned by a user, displayed on the list and map views.
 
 **Properties**
 - _id:_ Sauna id
@@ -95,7 +120,7 @@ Represents a rating given to a Sauna by an user.
 - _saunaId:_ Sauna id to rate
 - _message:_ Short message to accompany rating
 - _time:_ Time of the rating (Date)
-- _rating:_ Double value representing rating ( 0 <= rating <= 5)
+- _rating:_ Double value representing rating (0 <= rating <= 5)
 
 ### Conversation
 Represents a conversation from a user to another.
@@ -122,4 +147,4 @@ A single message from user to another. Saved separately for each user.
 ## Backend
 SaunaApp uses a Firebase function as a light backend to monitor message events in the database to 
 send push notifications to client devices. The backend in found in [this repository.](https://github.com/RoniPa/SaunaApp-backend)
-Notification tokens for each users' device are stored within the Realtime Database.
+Notification tokens for each users' device are stored within the Realtime Database. Function is triggered on the onCreate event at the location of user's messages within database (messages/{uid}/{conversationId}/).
