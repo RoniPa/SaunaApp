@@ -15,6 +15,18 @@ public class StringFormat {
         return String.format(locale, "%.1f", (d+.05)) +" km";
     }
 
+    /**
+     * Return display string for date.
+     *
+     *   * Same date        -> HH:mm
+     *   * Same year        -> dd.MM. HH:mm
+     *   * Different year   -> dd.MM.yyyy
+     *
+     * @param locale
+     * @param date
+     *
+     * @return
+     */
     public static String shortTime(Locale locale, Date date) {
         if (locale == null) {
             locale = Locale.getDefault();

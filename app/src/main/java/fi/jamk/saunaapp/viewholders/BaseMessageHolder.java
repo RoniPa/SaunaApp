@@ -8,8 +8,7 @@ import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Message;
 
 /**
- * A view holder extending {@link RecyclerView.ViewHolder}
- * for sent Messages.
+ * A view holder extending {@link RecyclerView.ViewHolder} for sent Messages.
  */
 public class BaseMessageHolder extends BindableViewHolder<BaseMessageHolder.Binding> {
     private BaseMessageHolder.Binding mBinding;

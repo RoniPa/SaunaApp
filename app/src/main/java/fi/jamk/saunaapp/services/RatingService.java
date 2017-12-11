@@ -22,8 +22,7 @@ import fi.jamk.saunaapp.models.Sauna;
 
 
 /**
- * Service containing some general
- * actions regarding sauna ratings.
+ * Service containing some general actions regarding sauna ratings.
  */
 public class RatingService {
     public static final String TAG = "RatingService";

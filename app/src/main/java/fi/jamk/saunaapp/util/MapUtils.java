@@ -10,7 +10,7 @@ import fi.jamk.saunaapp.R;
 import io.reactivex.annotations.Nullable;
 
 /**
- * Utility functions for GoogleMap
+ * Utility methods for handling {@link GoogleMap}
  */
 
 public class MapUtils {

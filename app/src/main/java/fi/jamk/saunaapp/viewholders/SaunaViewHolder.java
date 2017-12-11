@@ -9,8 +9,7 @@ import android.widget.TextView;
 import fi.jamk.saunaapp.R;
 
 /**
- * A view holder extending {@link RecyclerView.ViewHolder}
- * for Sauna list elements.
+ * A view holder extending {@link RecyclerView.ViewHolder} for Sauna items.
  */
 public class SaunaViewHolder extends BindableViewHolder<SaunaViewHolder.Binding> {
     private SaunaViewHolder.Binding mBinding;
