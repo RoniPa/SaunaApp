@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -19,7 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import fi.jamk.saunaapp.R;
-import fi.jamk.saunaapp.providers.GenericFileProvider;
 
 
 /**
