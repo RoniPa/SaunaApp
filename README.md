@@ -9,13 +9,19 @@ At the moment the project has taken around 150 hours of work. See [the work log]
 # Table of contents
 
 - [Introduction](#introduction)
+    - [Project timeline](#project-timeline)
 - [Table of contents](#table-of-contents)
 - [Installation](#installation)
 	- [External libraries](#external-libraries)
 	- [Screenshots](#screenshots)
 - [Architecture](#architecture)
     - [Application structure](#application-structure)
-        - [Activities](#activities)
+        - [MainActivity](#mainactivity)
+        - [SaunaDetailsActivity](#saunadetailsactivity)
+        - [UserProfileActivity](#userprofileactivity)
+        - [EditSaunaActivity](#editsaunaactivity)
+        - [ConversationListActivity](#conversationlistactivity)
+        - [MessageListActivity](#messagelistactivity)
 	- [Database](#database)
 	- [Entities](#entities)
 		- [Sauna](#sauna)
@@ -51,15 +57,63 @@ Here is a basic representation of the applications Activities and their hierarch
 MainActivity
   |_ SaunaDetailsActivity
   |_ UserProfileActivity
-  |  |_ EditSaunaActivity
+  |   |__ EditSaunaActivity
   |_ ConversationListActivity
-     |_ MessageListActivity
+      |__ MessageListActivity
      
 _ LoginActivity
 _ UCropActivity
 </pre>
 
-## Activities
+### MainActivity
+This is the "entry" view for the application (logged in users). User interface is divided to three fragments shown as tabs.
+
+**SaunaListFragment**
+
+Displays saunas as a list. Tapping item opens SaunaDetailsActivity.
+
+**SaunaMapFragment**
+
+Displays saunas as markers on map. Tapping marker opens SaunaDetailsActivity.
+
+**UserProfileFragment**
+
+Displays list of actions:
+- _Messages_ -> Navigate to ConversationListActivity
+- _Your saunas_ -> Navigate to UserProfileActivity (a list of user's saunas)
+- _Sign out_ -> Sign out and navigate to LoginActivity
+
+### SaunaDetailsActivity
+
+Activity for displaying information about sauna. Displays weighted rating based on user reviews,
+sauna description, picture (if set), location on map, component for giving rating,
+and last five user reviews.
+
+FAB takes user to MessageListView, where conversation with sauna owner can be initiated.
+
+### UserProfileActivity
+
+Displays a list of user's saunas. Clicking item opens EditSaunaActivity for selected sauna.
+FAB opens empty EditSaunaActivity for creating new sauna.
+
+### EditSaunaActivity
+
+Activity for editing sauna. A name and description can be set for sauna. Image can be picked
+by clicking image thumbnail. This launches ImagePicker and when image is selected from gallery,
+UCrop for cropping image. Crop is forced to 1:1 ratio to ensure proper display for images. Also sauna
+location can be picked on the map. By default location is set to user's current location.
+
+### ConversationListActivity
+
+Shows list of user's Conversations, ordered by relevance (touched-timestamp).
+If Conversation contains unread messages, icon is shown on list with the amount of unread messages.
+
+Tapping item takes user to MessageListActivity for selected Conversation.
+ 
+### MessageListActivity
+
+View for a single Conversation. Shows sent and received messages, and their respective times
+in time order. User can send a new message by writing it at the bottom and tapping "SEND".
 
 ## Database
 SaunaApp uses Firebase real time database for storing data. At the moment all data access is restricted to logged in users.
@@ -116,10 +170,11 @@ Represents a rating given to a Sauna by an user.
 
 **Properties**
 - _id:_ Rating id
-- _user:_ Id of the user giving this Rating
+- _userId:_ Id of the user giving this Rating
+- _userName:_ Display name for the user giving this Rating
 - _saunaId:_ Sauna id to rate
 - _message:_ Short message to accompany rating
-- _time:_ Time of the rating (Date)
+- _time:_ Client time of the rating (Date)
 - _rating:_ Double value representing rating (0 <= rating <= 5)
 
 ### Conversation
@@ -129,7 +184,7 @@ Represents a conversation from a user to another.
 - _id:_ Conversation id
 - _target:_ Id of the targeted user
 - _targetName:_ Display name of the targeted user
-- _touched:_ Timestamp of the last time this conversation was touched, stored as a long number. Can be used for ordering for example.
+- _touched:_ Server timestamp of the last time this conversation was touched, stored as a long number.
 - _hasNew:_ Whether conversation holds changes the user has not seen. 0 if nothing, else count of new messages.
 
 ### Message
@@ -142,7 +197,7 @@ A single message from user to another. Saved separately for each user.
 - _senderName:_ Display name for the sender
 - _target:_ Id of the targeted user
 - _saunaId:_ Id of the sauna that this message concerns (optional)
-- _date:_ Time of sending the message
+- _date:_ Client time of sending the message (Date)
 
 ## Backend
 SaunaApp uses a Firebase function as a light backend to monitor message events in the database to 
