@@ -40,12 +40,9 @@ public class UserProfileActivity extends BaseActivity implements
         }
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent startIntent = new Intent(view.getContext(), EditSaunaActivity.class);
-                startActivity(startIntent);
-            }
+        fab.setOnClickListener(view -> {
+            Intent startIntent = new Intent(view.getContext(), EditSaunaActivity.class);
+            startActivity(startIntent);
         });
 
     }
