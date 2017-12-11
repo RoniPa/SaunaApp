@@ -29,6 +29,7 @@ At the moment the project has taken around 150 hours of work. See [the work log]
 		- [Conversation](#conversation)
 		- [Message](#message)
 	- [Backend](#backend)
+- [TODO](#todo)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -65,6 +66,9 @@ _ LoginActivity
 _ UCropActivity
 </pre>
 
+### LoginActivity
+Entry view for new users. Allow users to log in with Google account.
+
 ### MainActivity
 This is the "entry" view for the application (logged in users). User interface is divided to three fragments shown as tabs.
 
@@ -87,7 +91,7 @@ Displays list of actions:
 
 Activity for displaying information about sauna. Displays weighted rating based on user reviews,
 sauna description, picture (if set), location on map, component for giving rating,
-and last five user reviews.
+and five latest user reviews.
 
 FAB takes user to MessageListView, where conversation with sauna owner can be initiated.
 
@@ -161,9 +165,10 @@ Sauna is the most important, basic entity in the system. Sauna represents a loca
 - _longitude:_ Float number representing the longitude (location)
 - _owner:_ User id of the owner
 - _ownerName:_ Display name for the owner
-- _photoPath:_ Possibly the relative path to the image for this sauna in Firebase storage
+- _photoPath:_ Relative path to the image for this sauna in Firebase Storage (if set)
 - _rating:_ Current average of ratings
 - _ratingCount:_ Amount of ratings given, maxed to 500 to emphasize newer ratings when calculating the average.
+This number is off the top of my head and can be adjusted to lower/increase the impact of new ratings.
 
 ### Rating
 Represents a rating given to a Sauna by an user.
@@ -203,3 +208,16 @@ A single message from user to another. Saved separately for each user.
 SaunaApp uses a Firebase function as a light backend to monitor message events in the database to 
 send push notifications to client devices. The backend in found in [this repository.](https://github.com/RoniPa/SaunaApp-backend)
 Notification tokens for each users' device are stored within the Realtime Database. Function is triggered on the onCreate event at the location of user's messages within database (messages/{uid}/{conversationId}/).
+
+# TODO
+
+**Things to work on:**
+- Improve Sauna edit view (especially map)
+- Optimize conversation/message structure
+- Possibly sorting for SaunaListFragment
+- Update distances in SaunaListFragment when device location is turned on
+- Update rating bar in SaunaDetailActivity when new rating is given
+- Move away from deprecated FusedLocationApi
+- Enable multiple images
+- Change Firebase Realtime Database to Cloud Firestore (beta)
+- Gracefully destroy listeners on sign out
