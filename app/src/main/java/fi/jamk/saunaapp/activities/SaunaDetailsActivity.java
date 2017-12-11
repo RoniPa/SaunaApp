@@ -129,6 +129,7 @@ public class SaunaDetailsActivity extends BaseActivity implements
 
     @Override
     public void onResume() {
+        getConversationIfExists();
         saunaMapView.onResume();
         super.onResume();
     }
