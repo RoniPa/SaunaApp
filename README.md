@@ -30,6 +30,7 @@ At the moment the project has taken around 150 hours of work. See [the work log]
 		- [Message](#message)
 	- [Backend](#backend)
 - [Todo](#todo)
+- [Project notes and evaluation](#project-notes-and-evaluation)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -224,3 +225,9 @@ Notification tokens for each users' device are stored within the Realtime Databa
 - Enable multiple images
 - Change Firebase Realtime Database to Cloud Firestore (beta)
 - Gracefully destroy listeners on sign out
+
+# Project notes and evaluation
+
+All in all most of the functionality described in the original project plan was implemented (list filtering missing). More resources was used than was initally resourced, but this was affected by the long span on which the project was implemented (after failing the initial schedule). This caused some work updating platform & development tools and moving away from deprecated APIs. Time was also used with the UCrop library, trying to modify the library to the new permission API with bad success. This was how ever intentional with the extended schedule.
+
+The original schedule was somewhat utopistic as I was working more or less full time at the time, but after furthering development I feel that the goals were accomplished satisfactorily. Some deviation occured from the initial UI and architechture plans, but to my experience this is quite common in modern, agile software development. Overall, I consider the project succesfull, despite the failure to keep up the initial schedule.
