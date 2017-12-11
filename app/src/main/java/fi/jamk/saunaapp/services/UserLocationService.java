@@ -65,28 +65,22 @@ public class UserLocationService implements LocationListener {
             listenerList.add(l);
 
             Task<LocationSettingsResponse> task = checkLocationSettings(ctx);
-            task.addOnSuccessListener(ctx, new OnSuccessListener<LocationSettingsResponse>() {
-                @Override
-                public void onSuccess(LocationSettingsResponse locationSettingsResponse) {}
-            });
-            task.addOnFailureListener(ctx, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    int statusCode = ((ApiException) e).getStatusCode();
-                    switch (statusCode) {
-                        case CommonStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                ResolvableApiException resolvable = (ResolvableApiException) e;
-                                resolvable.startResolutionForResult(ctx, REQUEST_CHECK_SETTINGS);
-                            } catch (IntentSender.SendIntentException sendEx) {
-                                // Ignore...
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            // Settings not satisfied, but no way to fix them.
-                            Log.e(TAG, "Location settings are not satisfied, but can not be fixed.");
-                            break;
-                    }
+            task.addOnSuccessListener(ctx, locationSettingsResponse -> {});
+            task.addOnFailureListener(ctx, e -> {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case CommonStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            ResolvableApiException resolvable = (ResolvableApiException) e;
+                            resolvable.startResolutionForResult(ctx, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sendEx) {
+                            // Ignore...
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Settings not satisfied, but no way to fix them.
+                        Log.e(TAG, "Location settings are not satisfied, but can not be fixed.");
+                        break;
                 }
             });
 
