@@ -45,8 +45,11 @@ You need Google Play Service SDK tools installed to Android Studio.
 
 ## Screenshots
 
-<img src="/screenshots/1.png?raw=true" width="220"/> <img src="/screenshots/4.png?raw=true" width="220"/>
-<img src="/screenshots/2.png?raw=true" width="220"/> <img src="/screenshots/3.png?raw=true" width="220"/>
+<img src="/screenshots/login.png?raw=true" width="215"/> <img src="/screenshots/list.png?raw=true" width="215"/>
+<img src="/screenshots/map.png?raw=true" width="215"/> <img src="/screenshots/profile.png?raw=true" width="215"/>
+<img src="/screenshots/details1.png?raw=true" width="215"/> <img src="/screenshots/details2.png?raw=true" width="215"/>
+<img src="/screenshots/conversations.png?raw=true" width="215"/> <img src="/screenshots/messages.png?raw=true" width="215"/>
+<img src="/screenshots/edit.png?raw=true" width="215"/> <img src="/screenshots/push.png?raw=true" width="215"/>
 
 # Architecture
 
