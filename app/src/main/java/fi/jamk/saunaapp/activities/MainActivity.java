@@ -58,7 +58,6 @@ public class MainActivity extends BaseActivity implements
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser mFirebaseUser;
     private FirebaseAnalytics mFirebaseAnalytics;
     private UserLocationService mUserLocationService;
@@ -117,19 +116,16 @@ public class MainActivity extends BaseActivity implements
             }
         }
 
-        mFirebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user == null) {
-                    // Not signed in, launch the Login activity
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
-                } else {
-                    mUsername = mFirebaseUser.getDisplayName();
-                    if (mFirebaseUser.getPhotoUrl() != null) {
-                        mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
-                    }
+        mFirebaseAuth.addAuthStateListener(firebaseAuth -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                // Not signed in, launch the Login activity
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                finish();
+            } else {
+                mUsername = mFirebaseUser.getDisplayName();
+                if (mFirebaseUser.getPhotoUrl() != null) {
+                    mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
                 }
             }
         });
@@ -142,30 +138,9 @@ public class MainActivity extends BaseActivity implements
             .build();
 
         mUserLocationService = UserLocationService.newInstance(mGoogleApiClient);
-
-        fetchConfig()
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    // Make the fetched config available via
-                    // FirebaseRemoteConfig get<type> calls.
-                    mFirebaseRemoteConfig.activateFetched();
-                    applyRetrievedLengthLimit();
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // There has been an error fetching the config
-                    Log.w(TAG, "Error fetching config: " +
-                            e.getMessage());
-                    applyRetrievedLengthLimit();
-                }
-            });
-
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Create the adapter that will return a fragment for each of the three
@@ -173,10 +148,10 @@ public class MainActivity extends BaseActivity implements
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        // We have 3 tabs, maintain all off view tabs
+        // We have 3 tabs, keep both off-view tabs in memory
         mViewPager.setOffscreenPageLimit(2);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -240,16 +215,6 @@ public class MainActivity extends BaseActivity implements
                 ", resultCode=" + resultCode);
 
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    /**
-     * Apply retrieved length limit to edit text field.
-     * This result may be fresh from the server or it may be from cached
-     * values.
-     */
-    private void applyRetrievedLengthLimit() {
-        Long friendly_msg_length =
-                mFirebaseRemoteConfig.getLong("friendly_msg_length");
     }
 
     @Override

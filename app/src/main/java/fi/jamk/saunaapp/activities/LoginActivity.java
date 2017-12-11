@@ -27,7 +27,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import fi.jamk.saunaapp.R;
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via Google auth.
  */
 public class LoginActivity extends BaseActivity implements
         GoogleApiClient.OnConnectionFailedListener,

@@ -28,6 +28,7 @@ import java.util.Locale;
 import fi.jamk.saunaapp.R;
 
 import fi.jamk.saunaapp.models.Conversation;
+import fi.jamk.saunaapp.util.ConversationListAdapter;
 import fi.jamk.saunaapp.util.RecyclerItemClickListener;
 import fi.jamk.saunaapp.viewholders.BindableViewHolder;
 
@@ -57,7 +58,7 @@ public class ConversationListActivity extends BaseActivity {
         // This reverses data on client side. Firebase Realtime Database
         // doesn't support descending queries, and we cannot use negative
         // Server timestamp without modifying it in functions or in a
-        // second request (after saving)
+        // second request (after saving).
         mLinearLayoutManager.setReverseLayout(true);
         mLinearLayoutManager.setStackFromEnd(true);
 
@@ -68,7 +69,7 @@ public class ConversationListActivity extends BaseActivity {
     }
 
     /**
-     * Setup recycler view for current user's conversations
+     * Setup {@link RecyclerView} for current user's conversations.
      *
      * @param context
      * @param recyclerView
@@ -94,60 +95,5 @@ public class ConversationListActivity extends BaseActivity {
                     @Override
                     public void onLongItemClick(View view, int position) {}
                 }));
-    }
-
-    public static class ConversationListAdapter extends FirebaseRecyclerAdapter<Conversation, ConversationListAdapter.ViewHolder> {
-        private Context mContext;
-
-        ConversationListAdapter(Context context, DatabaseReference conversationRef) {
-            super(Conversation.class, R.layout.conversation_list_content, ViewHolder.class, conversationRef);
-            this.mContext = context;
-        }
-
-        ConversationListAdapter(Context context, Query conversationRef) {
-            super(Conversation.class, R.layout.conversation_list_content, ViewHolder.class, conversationRef);
-            this.mContext = context;
-        }
-
-        @SuppressLint("DefaultLocale")
-        @Override
-        protected void populateViewHolder(ViewHolder viewHolder, Conversation model, int position) {
-            viewHolder.mContentView.setText(model.getTargetName());
-
-            if (model.getHasNew() > 0) {
-                viewHolder.mHasNewText.setVisibility(View.VISIBLE);
-                viewHolder.mHasNewText.setText(String.format("%d", model.getHasNew()));
-            } else {
-                viewHolder.mHasNewText.setVisibility(View.GONE);
-            }
-        }
-
-        public static class ViewHolder extends BindableViewHolder<ViewHolder.Binding> {
-            final TextView mContentView;
-            final TextView mHasNewText;
-
-            private ViewHolder.Binding mBinding;
-
-            ViewHolder(View view) {
-                super(view);
-                mContentView = view.findViewById(R.id.content);
-                mHasNewText = view.findViewById(R.id.hasNewText);
-            }
-
-            @Override
-            public void bind(ViewHolder.Binding binding) {
-                this.mBinding = binding;
-            }
-
-            public static class Binding {
-                public String content;
-                public int hasNew;
-
-                public Binding(String content, int hasNew) {
-                    this.content = content;
-                    this.hasNew = hasNew;
-                }
-            }
-        }
     }
 }
