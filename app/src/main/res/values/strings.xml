@@ -62,4 +62,7 @@
     <string name="rate_sauna_hint">Write a short review</string>
     <string name="you_rated_as">You\'ve rated this sauna:</string>
     <string name="title_message_list">Messages</string>
+
+    <string name="latest_ratings">Latest reviews</string>
+    <string name="no_ratings">No reviews.</string>
 </resources>

@@ -25,7 +25,8 @@ import java.util.Locale;
 public class Rating implements Parcelable {
 
     private String id;
-    private String user;
+    private String userId;
+    private String userName;
     private String saunaId;
     private String message;
     private Date time;
@@ -41,7 +42,8 @@ public class Rating implements Parcelable {
         String message,
         double rating,
         Date time,
-        String user,
+        String userId,
+        String userName,
         @Nullable String id
     ) {
         if (id != null) {
@@ -51,7 +53,8 @@ public class Rating implements Parcelable {
         this.message = message;
         this.rating = rating;
         this.time = time;
-        this.user = user;
+        this.userId = userId;
+        this.userName = userName;
     }
 
     public String getId() { return id; }
@@ -75,16 +78,19 @@ public class Rating implements Parcelable {
     public Date getTime() { return time; }
     public void setTime(Date time) { this.time = time; }
 
-    public String getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
+
+    public String getUserName() {return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
     @Override
     public String toString() {
-        String outputFormat = "Sauna: {\n\tid: %s\n\tmessage: %s\n\tsaunaId: %s\n\trating: %f\n\ttime: %s\n\tuser: %s\n}";
+        String outputFormat = "Rating: {\n\tid: %s\n\tmessage: %s\n\tsaunaId: %s\n\trating: %f\n\ttime: %s\n\tuserId: %s\n\tuserName: %s\n}";
         return String.format(
                 Locale.ENGLISH,
                 outputFormat,
@@ -93,7 +99,8 @@ public class Rating implements Parcelable {
                 this.saunaId == null ? "NULL" : this.saunaId,
                 this.rating,
                 this.time.toString(),
-                this.user == null ? "NULL" : this.user
+                this.userId == null ? "NULL" : this.userId,
+                this.userName == null ? "NULL" : this.userName
         );
     }
 
@@ -108,7 +115,8 @@ public class Rating implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(user);
+        dest.writeString(userId);
+        dest.writeString(userName);
         dest.writeString(message);
         dest.writeString(saunaId);
         dest.writeSerializable(time);
@@ -127,7 +135,8 @@ public class Rating implements Parcelable {
     };
 
     private Rating(Parcel in) {
-        this.user = in.readString();
+        this.userId = in.readString();
+        this.userName = in.readString();
         this.message = in.readString();
         this.saunaId = in.readString();
         this.time = (Date) in.readSerializable();

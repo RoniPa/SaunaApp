@@ -186,7 +186,8 @@ public class RateSaunaFragment extends Fragment implements RatingBar.OnRatingBar
         Rating rating = new Rating();
         rating.setRating(this.rating);
         rating.setTime(new Date());
-        rating.setUser(mUser.getUid());
+        rating.setUserId(mUser.getUid());
+        rating.setUserName(mUser.getDisplayName());
         rating.setMessage(this.reviewMessage);
 
         return rating;

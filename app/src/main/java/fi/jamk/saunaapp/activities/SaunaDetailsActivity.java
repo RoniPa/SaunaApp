@@ -4,13 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -22,15 +18,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Date;
-
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.fragments.RateSaunaFragment;
+import fi.jamk.saunaapp.fragments.RatingsFragment;
 import fi.jamk.saunaapp.models.Conversation;
 import fi.jamk.saunaapp.models.Rating;
 import fi.jamk.saunaapp.models.Sauna;
@@ -57,7 +52,7 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sauna_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back_white_24dp));
         toolbar.setNavigationOnClickListener(v -> finish());
@@ -71,8 +66,8 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         ((RatingBar)findViewById(R.id.sauna_rating_bar)).setRating((float)sauna.getRating());
 
         int rCount = sauna.getRatingCount();
-        String txt = rCount > 499 ? "499+" : ""+rCount;
-        ((TextView)findViewById(R.id.rating_count_text_view)).setText(getString(R.string.rating_count, txt));
+        ((TextView)findViewById(R.id.rating_count_text_view))
+                .setText(getString(R.string.rating_count, rCount > 499 ? "499+" : ""+rCount));
 
         // Check if user has rated sauna.
         ratingService = RatingService.newInstance();
@@ -111,6 +106,26 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
         detailsTextView = (TextView) findViewById(R.id.details_text);
         detailsTextView.setText(sauna.getDescription());
 
+        getConversationIfExists();
+        initRatingsFragment();
+        initFab();
+    }
+
+    /**
+     * Save rating.
+     *
+     * @param rating
+     */
+    @Override
+    public void onFragmentInteraction(final Rating rating) {
+        rating.setSaunaId(sauna.getId());
+        ratingService.saveRating(rating);
+    }
+
+    /**
+     * Checks for existing conversation and sets it to property if found.
+     */
+    private void getConversationIfExists() {
         FirebaseDatabase.getInstance().getReference("conversations")
             .child(mUser.getUid())
             .orderByChild("target")
@@ -119,12 +134,28 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
                 @Override public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         dataSnapshot.getChildren()
-                            .forEach(dataSnapshot1 -> existingConversation = dataSnapshot1.getValue(Conversation.class));
+                                .forEach(dataSnapshot1 -> existingConversation = dataSnapshot1.getValue(Conversation.class));
                     }
                 }
                 @Override public void onCancelled(DatabaseError databaseError) {}
             });
+    }
 
+    /**
+     * Initiate {@link fi.jamk.saunaapp.fragments.RatingsFragment}.
+     * For latest sauna ratings.
+     */
+    private void initRatingsFragment() {
+        Query ratingsQuery = FirebaseDatabase.getInstance().getReference("ratings")
+                .orderByChild("saunaId")
+                .equalTo(sauna.getId())
+                .limitToFirst(5);
+
+        RatingsFragment ratingsFragment = RatingsFragment.newInstance(ratingsQuery);
+        getFragmentManager().beginTransaction().add(R.id.wrapper, ratingsFragment).commit();
+    }
+
+    private void initFab() {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             Intent intent1 = new Intent(SaunaDetailsActivity.this, MessageListActivity.class);
@@ -145,16 +176,5 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
 
             startActivity(intent1);
         });
-    }
-
-    /**
-     * Save rating.
-     *
-     * @param rating
-     */
-    @Override
-    public void onFragmentInteraction(final Rating rating) {
-        rating.setSaunaId(sauna.getId());
-        ratingService.saveRating(rating);
     }
 }

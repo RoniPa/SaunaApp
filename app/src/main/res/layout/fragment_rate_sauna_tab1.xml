@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:textColor="@color/color87opBlack"
-        android:textAppearance="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:text="@string/rate_sauna_header"/>
     <RatingBar
         android:id="@+id/rating_bar"

@@ -1,8 +1,5 @@
 package fi.jamk.saunaapp.util;
 
-import android.content.Context;
-import android.os.Build;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,6 +16,10 @@ public class StringFormat {
     }
 
     public static String shortTime(Locale locale, Date date) {
+        if (locale == null) {
+            locale = Locale.getDefault();
+        }
+
         final Calendar cal = Calendar.getInstance();
         DateFormat df;
 

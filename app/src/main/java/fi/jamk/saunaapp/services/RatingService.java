@@ -49,18 +49,18 @@ public class RatingService {
      * Save sauna rating, push rating to local map.
      *
      * ratings
-     *     |__ id
-     *          |_ rating data
+     *     |_ id
+     *         |__ rating data
      *
      * _hasRated
-     *     |__ user id
-     *            |__ sauna id : rating id
-     *                - map of rated items (user can rate an item only once)
+     *     |_ user id
+     *         |__ sauna id : rating id
+     *             - map of rated items (user can rate an item only once)
      *
      * @param rating    Rating object
      */
     public void saveRating(final Rating rating) {
-        DatabaseReference mMetaReference = db.getReference("_hasRated").child(rating.getUser());
+        DatabaseReference mMetaReference = db.getReference("_hasRated").child(rating.getUserId());
         DatabaseReference mReviewReference = db.getReference("ratings");
 
         rating.setId(mReviewReference.push().getKey());
