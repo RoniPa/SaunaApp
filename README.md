@@ -29,7 +29,7 @@ At the moment the project has taken around 150 hours of work. See [the work log]
 		- [Conversation](#conversation)
 		- [Message](#message)
 	- [Backend](#backend)
-- [TODO](#todo)
+- [Todo](#todo)
 
 # Installation
 You need Google Play Service SDK tools installed to Android Studio.
@@ -209,7 +209,7 @@ SaunaApp uses a Firebase function as a light backend to monitor message events i
 send push notifications to client devices. The backend in found in [this repository.](https://github.com/RoniPa/SaunaApp-backend)
 Notification tokens for each users' device are stored within the Realtime Database. Function is triggered on the onCreate event at the location of user's messages within database (messages/{uid}/{conversationId}/).
 
-# TODO
+# Todo
 
 **Things to work on:**
 - Improve Sauna edit view (especially map)
