@@ -1,6 +1,7 @@
 package fi.jamk.saunaapp.activities;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,12 +38,19 @@ import fi.jamk.saunaapp.models.Conversation;
 import fi.jamk.saunaapp.models.Rating;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.RatingService;
+import fi.jamk.saunaapp.services.UserLocationService;
+import fi.jamk.saunaapp.util.MapUtils;
 
-public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragment.OnFragmentInteractionListener {
+public class SaunaDetailsActivity extends BaseActivity implements
+        OnMapReadyCallback,
+        RateSaunaFragment.OnFragmentInteractionListener {
     private final static String TAG = "SaunaDetailsActivity";
+    private final static float MAP_ZOOM = 12.0f;
 
     private FirebaseStorage mFirebaseStorage;
     private RatingService ratingService;
+    private MapView saunaMapView;
+    private GoogleMap mMap;
 
     /**
      * If user already has existing conversation
@@ -108,7 +123,36 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
 
         getConversationIfExists();
         initRatingsFragment();
+        initMap(savedInstanceState);
         initFab();
+    }
+
+    @Override
+    public void onResume() {
+        saunaMapView.onResume();
+        super.onResume();
+    }
+    @Override
+    public void onPause() {
+        saunaMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        saunaMapView.onStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        saunaMapView.onStart();
+        super.onStart();
+    }
+    @Override
+    public void onDestroy() {
+        saunaMapView.onDestroy();
+        super.onDestroy();
     }
 
     /**
@@ -120,6 +164,21 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
     public void onFragmentInteraction(final Rating rating) {
         rating.setSaunaId(sauna.getId());
         ratingService.saveRating(rating);
+    }
+
+    /**
+     * Map ready callback.
+     *
+     * @param googleMap
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
+
+        LatLng latLng = new LatLng(sauna.getLatitude(), sauna.getLongitude());
+        googleMap.addMarker(MapUtils.getSaunaMarker(latLng, null));
+        MapUtils.centerMap(latLng, MAP_ZOOM, googleMap);
+        saunaMapView.onResume();
     }
 
     /**
@@ -153,6 +212,12 @@ public class SaunaDetailsActivity extends BaseActivity implements RateSaunaFragm
 
         RatingsFragment ratingsFragment = RatingsFragment.newInstance(ratingsQuery);
         getFragmentManager().beginTransaction().add(R.id.wrapper, ratingsFragment).commit();
+    }
+
+    private void initMap(Bundle savedInstanceState) {
+        saunaMapView = (MapView) findViewById(R.id.saunaMapView);
+        saunaMapView.onCreate(savedInstanceState);
+        saunaMapView.getMapAsync(this);
     }
 
     private void initFab() {

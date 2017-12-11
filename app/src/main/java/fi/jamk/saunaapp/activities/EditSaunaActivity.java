@@ -23,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -47,6 +48,7 @@ import java.io.InputStream;
 import fi.jamk.saunaapp.R;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
+import fi.jamk.saunaapp.util.MapUtils;
 import tofira.imagepicker.PickerBuilder;
 
 public class EditSaunaActivity extends BaseActivity implements
@@ -181,20 +183,14 @@ public class EditSaunaActivity extends BaseActivity implements
 
         if (sauna.getLongitude() != 0.0d && sauna.getLatitude() != 0.0d) {
             LatLng latLng = new LatLng(sauna.getLatitude(), sauna.getLongitude());
-            currentMapMarker = mMap.addMarker(
-                    new MarkerOptions()
-                            .position(latLng)
-                            .title("Sauna location"));
-            centerMap(latLng);
+            currentMapMarker = mMap.addMarker(MapUtils.getSaunaMarker(latLng, null));
+            MapUtils.centerMap(latLng, MAP_ZOOM, mMap);
         } else {
             // Center map to user location
             Location currentLocation = UserLocationService.getCachedLocation();
             LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            currentMapMarker = mMap.addMarker(
-                    new MarkerOptions()
-                            .position(latLng)
-                            .title("Sauna location"));
-            centerMap(latLng);
+            currentMapMarker = mMap.addMarker(MapUtils.getSaunaMarker(latLng, null));
+            MapUtils.centerMap(latLng, MAP_ZOOM, mMap);
         }
 
         saunaMapView.onResume();
@@ -212,17 +208,13 @@ public class EditSaunaActivity extends BaseActivity implements
             currentMapMarker.remove();
         }
 
-        currentMapMarker = mMap.addMarker(
-                new MarkerOptions()
-                        .position(latLng)
-                        .title("Sauna location")
-        );
+        currentMapMarker = mMap.addMarker(MapUtils.getSaunaMarker(latLng, null));
 
         // Set sauna location
         sauna.setLatitude(latLng.latitude);
         sauna.setLongitude(latLng.longitude);
 
-        centerMap(latLng);
+        MapUtils.centerMap(latLng, MAP_ZOOM, mMap);
     }
 
     @Override
@@ -258,13 +250,8 @@ public class EditSaunaActivity extends BaseActivity implements
         }
         if (mMap != null) {
             LatLng latLng = new LatLng(sauna.getLatitude(), sauna.getLongitude());
-            currentMapMarker = mMap.addMarker(
-                    new MarkerOptions()
-                            .position(latLng)
-                            .title("Sauna location")
-            );
-
-            centerMap(latLng);
+            currentMapMarker = mMap.addMarker(MapUtils.getSaunaMarker(latLng, null));
+            MapUtils.centerMap(latLng, MAP_ZOOM, mMap);
         }
     }
 
@@ -291,18 +278,6 @@ public class EditSaunaActivity extends BaseActivity implements
             sauna.setLatitude(currentMapMarker.getPosition().latitude);
             sauna.setLongitude(currentMapMarker.getPosition().longitude);
         }
-    }
-
-    /**
-     * Animate {@link GoogleMap} to given location.
-     *
-     * @param latLng      The location to move to
-     */
-    private void centerMap(LatLng latLng) {
-        if (mMap == null) {
-            return;
-        }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_ZOOM));
     }
 
     /**

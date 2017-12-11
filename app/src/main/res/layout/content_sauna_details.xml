@@ -53,9 +53,16 @@
                 android:layout_marginTop="@dimen/text_margin" />
         </LinearLayout>
 
+        <com.google.android.gms.maps.MapView
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:id="@+id/saunaMapView"
+            android:layout_margin="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="196dp">
+        </com.google.android.gms.maps.MapView>
+
         <fragment
             android:name="fi.jamk.saunaapp.fragments.RateSaunaFragment"
-            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/rateSaunaFragment" />

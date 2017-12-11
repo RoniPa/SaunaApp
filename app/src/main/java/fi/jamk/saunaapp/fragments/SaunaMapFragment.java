@@ -39,6 +39,7 @@ import fi.jamk.saunaapp.activities.SaunaDetailsActivity;
 import fi.jamk.saunaapp.models.Sauna;
 import fi.jamk.saunaapp.services.UserLocationService;
 import fi.jamk.saunaapp.util.ChildConnectionNotifier;
+import fi.jamk.saunaapp.util.MapUtils;
 
 /**
  * A {@link Fragment} subclass that displays
@@ -253,11 +254,10 @@ public class SaunaMapFragment extends Fragment implements
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Sauna sauna = dataSnapshot.getValue(Sauna.class);
                 Marker marker = map.addMarker(
-                    new MarkerOptions()
-                        .position(new LatLng(sauna.getLatitude(), sauna.getLongitude()))
-                        .title(sauna.getName())
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.sauna_marker))
-                    );
+                        MapUtils.getSaunaMarker(
+                                new LatLng(sauna.getLatitude(), sauna.getLongitude()),
+                                sauna.getName()
+                        ));
 
                 markers.put(sauna.getId(), marker);
                 reverseMarkers.put(marker, sauna);
