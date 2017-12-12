@@ -6,6 +6,8 @@ The project was implemented as part of the Mobile Project course at JAMK Univers
 ### Project timeline
 At the moment the project has taken around 150 hours of work. See [the work log](https://drive.google.com/open?id=1CPqRP2ELmDbUH723Z50xf39h4uKDOUJgJaM_ro6_PMA) for details about tasks and timeline of the project.
 
+[Presentation](https://drive.google.com/open?id=14kYUpZFZhNq7oJilqREiSaBiIBPPn6zMNNPhQwlNnzo)
+
 # Table of contents
 
 - [Introduction](#introduction)
